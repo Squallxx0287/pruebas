@@ -3,6 +3,14 @@ export const POCKETS = Object.freeze([
   { x: 36, y: 36, r: 27 }, { x: 500, y: 23, r: 25 }, { x: 964, y: 36, r: 27 },
   { x: 36, y: 464, r: 27 }, { x: 500, y: 477, r: 25 }, { x: 964, y: 464, r: 27 },
 ]);
+export const CUSHIONS = Object.freeze([
+  { x1: 70, y1: 36, x2: 470, y2: 36, nx: 0, ny: 1 },
+  { x1: 530, y1: 36, x2: 930, y2: 36, nx: 0, ny: 1 },
+  { x1: 70, y1: 464, x2: 470, y2: 464, nx: 0, ny: -1 },
+  { x1: 530, y1: 464, x2: 930, y2: 464, nx: 0, ny: -1 },
+  { x1: 36, y1: 70, x2: 36, y2: 430, nx: 1, ny: 0 },
+  { x1: 964, y1: 70, x2: 964, y2: 430, nx: -1, ny: 0 },
+]);
 const EPSILON = 1e-8;
 const ROLLING_DRAG = 78;
 const SIDE_SPIN_DRAG = 1.8;
@@ -105,45 +113,65 @@ function resolvePair(a, b, events) {
   return true;
 }
 
-function railOpen(ball, wall) {
-  if (wall === 'top' || wall === 'bottom') return ball.x < 91 || ball.x > 909 || Math.abs(ball.x - 500) < 39;
-  return ball.y < 91 || ball.y > 409;
-}
-
 function railTime(ball, remaining) {
   let best = null;
   const r = TABLE.radius;
-  const walls = [
-    ['left', TABLE.left + r, ball.vx], ['right', TABLE.right - r, ball.vx],
-    ['top', TABLE.top + r, ball.vy], ['bottom', TABLE.bottom - r, ball.vy],
-  ];
-  for (const [wall, bound, velocity] of walls) {
-    if ((wall === 'left' || wall === 'top') ? velocity >= -EPSILON : velocity <= EPSILON) continue;
-    const coordinate = wall === 'left' || wall === 'right' ? ball.x : ball.y;
-    const t = (bound - coordinate) / velocity;
-    if (t < -EPSILON || t > remaining + EPSILON) continue;
-    const other = wall === 'left' || wall === 'right' ? ball.y + ball.vy * Math.max(0, t) : ball.x + ball.vx * Math.max(0, t);
-    if (railOpen({ x: other, y: other }, wall)) continue;
-    if (!best || t < best.t) best = { t: Math.max(0, t), wall };
+  const consider = (t, nx, ny) => {
+    if (t >= -EPSILON && t <= remaining + EPSILON && (!best || t < best.t)) best = { t: Math.max(0, t), nx, ny };
+  };
+  for (const rail of CUSHIONS) {
+    const { x1, y1, x2, y2, nx, ny } = rail;
+    const velocity = ball.vx * nx + ball.vy * ny;
+    if (velocity < -EPSILON) {
+      const distance = (ball.x - x1) * nx + (ball.y - y1) * ny;
+      const t = (r - distance) / velocity;
+      const x = ball.x + ball.vx * t, y = ball.y + ball.vy * t;
+      if (nx === 0 ? x >= x1 && x <= x2 : y >= y1 && y <= y2) consider(t, nx, ny);
+    }
+    // Rounded jaws close the gap between each cushion and its pocket mouth.
+    for (const [x, y] of [[x1, y1], [x2, y2]]) {
+      const ox = ball.x - x, oy = ball.y - y;
+      const a = ball.vx ** 2 + ball.vy ** 2;
+      const b = ox * ball.vx + oy * ball.vy;
+      const c = ox ** 2 + oy ** 2 - r ** 2;
+      const discriminant = b * b - a * c;
+      if (a < EPSILON || b >= 0 || discriminant < 0) continue;
+      const t = c <= 0 ? 0 : (-b - Math.sqrt(discriminant)) / a;
+      const hx = ox + ball.vx * t, hy = oy + ball.vy * t;
+      const length = Math.hypot(hx, hy) || 1;
+      consider(t, hx / length, hy / length);
+    }
   }
   return best;
 }
 
-function resolveRail(ball, wall, events) {
-  const horizontal = wall === 'left' || wall === 'right';
-  if (horizontal) {
-    ball.x = wall === 'left' ? TABLE.left + TABLE.radius : TABLE.right - TABLE.radius;
-    ball.vx *= -RAIL_RESTITUTION;
-    ball.vy += ball.sideSpin * 0.13;
-    ball.sideSpin *= 0.56;
-  } else {
-    ball.y = wall === 'top' ? TABLE.top + TABLE.radius : TABLE.bottom - TABLE.radius;
-    ball.vy *= -RAIL_RESTITUTION;
-    ball.vx -= ball.sideSpin * 0.13;
-    ball.sideSpin *= 0.56;
+function resolveRail(ball, hit, events) {
+  const { nx, ny } = hit;
+  const normalSpeed = ball.vx * nx + ball.vy * ny;
+  ball.vx -= (1 + RAIL_RESTITUTION) * normalSpeed * nx;
+  ball.vy -= (1 + RAIL_RESTITUTION) * normalSpeed * ny;
+  ball.vx -= ny * ball.sideSpin * 0.13;
+  ball.vy += nx * ball.sideSpin * 0.13;
+  ball.sideSpin *= 0.56;
+  ball.x += nx * 0.001; ball.y += ny * 0.001;
+  if (events && events.firstHit !== null) events.railAfterHit = true;
+  events?.rails.push({ x: ball.x, y: ball.y, strength: Math.abs(normalSpeed) });
+}
+
+export function predictAim(cue, balls, angle) {
+  const dx = Math.cos(angle), dy = Math.sin(angle);
+  const ray = { ...cue, vx: dx, vy: dy };
+  const tx = Math.abs(dx) < EPSILON ? Infinity : ((dx > 0 ? TABLE.right : TABLE.left) - cue.x) / dx;
+  const ty = Math.abs(dy) < EPSILON ? Infinity : ((dy > 0 ? TABLE.bottom : TABLE.top) - cue.y) / dy;
+  const boundary = Math.max(0, Math.min(tx, ty));
+  const rail = railTime(ray, boundary);
+  let best = { t: rail ? rail.t : boundary, ball: null };
+  for (const ball of balls) {
+    if (ball.number === cue.number || ball.pocketed) continue;
+    const t = pairTime(ray, { ...ball, vx: 0, vy: 0 }, best.t);
+    if (t < best.t) best = { t, ball };
   }
-  if (events?.firstHit !== null && events) events.railAfterHit = true;
-  events?.rails.push({ x: ball.x, y: ball.y, strength: horizontal ? Math.abs(ball.vx) : Math.abs(ball.vy) });
+  return best;
 }
 
 function applyCloth(ball, dt) {
@@ -180,7 +208,7 @@ export function step(balls, dt, events = null) {
       const a = balls[i];
       if (a.pocketed) continue;
       const rail = railTime(a, remaining);
-      if (rail && (!hit || rail.t < hit.t)) hit = { type: 'rail', t: rail.t, a, wall: rail.wall };
+      if (rail && (!hit || rail.t < hit.t)) hit = { type: 'rail', ...rail, a };
       for (let j = i + 1; j < balls.length; j++) {
         const b = balls[j];
         if (b.pocketed) continue;
@@ -193,7 +221,7 @@ export function step(balls, dt, events = null) {
     remaining -= hit.t;
     if (!hit.a.pocketed && (hit.type !== 'pair' || !hit.b.pocketed)) {
       if (hit.type === 'pair') resolvePair(hit.a, hit.b, events);
-      else resolveRail(hit.a, hit.wall, events);
+      else resolveRail(hit.a, hit, events);
     }
     // Move past a zero-time collision to prevent repeated contact loops.
     if (hit.t < EPSILON) { const nudge = Math.min(remaining, 0.00001); advance(balls, nudge, events); remaining -= nudge; }

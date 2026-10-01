@@ -1,4 +1,4 @@
-import { POCKETS, TABLE } from './physics.js';
+import { CUSHIONS, POCKETS, TABLE, predictAim } from './physics.js';
 import { PoolGame } from './game.js';
 
 const $ = selector => document.querySelector(selector);
@@ -69,14 +69,16 @@ function drawTable() {
   ctx.beginPath(); ctx.moveTo(350, 76); ctx.lineTo(350, 574); ctx.stroke();
   ctx.fillStyle = 'rgba(244,240,211,.32)';
   for (const [x, y] of [[350, 325], [790, 325]]) { ctx.beginPath(); ctx.arc(x, y, 2.7, 0, Math.PI * 2); ctx.fill(); }
-  // Cushions are split at all six pockets.
-  ctx.strokeStyle = '#0a392e'; ctx.lineWidth = 19; ctx.lineCap = 'round';
-  ctx.beginPath();
-  for (const [x1, y1, x2, y2] of [[188, 75, 558, 75], [642, 75, 1012, 75], [188, 575, 558, 575], [642, 575, 1012, 575], [100, 167, 100, 483], [1100, 167, 1100, 483]]) {
-    ctx.moveTo(x1, y1); ctx.lineTo(x2, y2);
+  // Draw the same cushion faces used by the collision solver.
+  for (const { x1, y1, x2, y2, nx, ny } of CUSHIONS) {
+    ctx.lineCap = 'round'; ctx.strokeStyle = '#0a392e'; ctx.lineWidth = 19;
+    ctx.beginPath();
+    ctx.moveTo(view.x + x1 - nx * 9.5, view.y + y1 - ny * 9.5);
+    ctx.lineTo(view.x + x2 - nx * 9.5, view.y + y2 - ny * 9.5); ctx.stroke();
+    ctx.strokeStyle = '#3ca27b'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(view.x + x1, view.y + y1);
+    ctx.lineTo(view.x + x2, view.y + y2); ctx.stroke();
   }
-  ctx.stroke();
-  ctx.strokeStyle = '#3ca27b'; ctx.lineWidth = 2; ctx.stroke();
   for (let i = 1; i < 8; i++) {
     const x = 100 + i * 125;
     for (const y of [42, 608]) { ctx.save(); ctx.translate(x, y); ctx.rotate(Math.PI / 4); ctx.fillStyle = '#d7bb81'; ctx.fillRect(-3, -3, 6, 6); ctx.restore(); }
@@ -117,28 +119,11 @@ function drawBall(ball) {
   ctx.restore();
 }
 
-function firstAimHit(cue, dx, dy) {
-  let best = { t: 1100, ball: null };
-  for (const ball of game.balls.slice(1)) {
-    if (ball.pocketed) continue;
-    const ox = cue.x - ball.x, oy = cue.y - ball.y;
-    const b = 2 * (ox * dx + oy * dy), c = ox * ox + oy * oy - Math.pow(TABLE.radius * 2, 2);
-    const disc = b * b - 4 * c;
-    if (disc < 0) continue;
-    const t = (-b - Math.sqrt(disc)) / 2;
-    if (t > 0 && t < best.t) best = { t, ball };
-  }
-  const tx = dx > 0 ? (TABLE.right - cue.x) / dx : (TABLE.left - cue.x) / dx;
-  const ty = dy > 0 ? (TABLE.bottom - cue.y) / dy : (TABLE.top - cue.y) / dy;
-  best.t = Math.min(best.t, tx, ty);
-  return best;
-}
-
 function drawAim() {
   if (game.phase !== 'aim' || game.ballInHand) return;
   const cue = game.cueBall();
   const dx = Math.cos(aimAngle), dy = Math.sin(aimAngle);
-  const hit = firstAimHit(cue, dx, dy);
+  const hit = predictAim(cue, game.balls, aimAngle);
   const x = view.x + cue.x, y = view.y + cue.y;
   const endX = x + dx * hit.t, endY = y + dy * hit.t;
   ctx.save();
@@ -224,9 +209,12 @@ canvas.addEventListener('pointermove', event => {
   }
 });
 canvas.addEventListener('pointerup', event => {
+  if (event.button !== 0) return;
   const point = tablePoint(event);
   if (game.ballInHand) { if (game.placeCue(point.x, point.y)) { tone(480, .07, .04); refreshUI(); } }
-  else if (game.phase === 'aim') { aimAngle = Math.atan2(point.y - game.cueBall().y, point.x - game.cueBall().x); shoot(); }
+  else if (game.phase === 'aim' && Math.hypot(point.x - game.cueBall().x, point.y - game.cueBall().y) > TABLE.radius * 2) {
+    aimAngle = Math.atan2(point.y - game.cueBall().y, point.x - game.cueBall().x);
+  }
 });
 canvas.addEventListener('contextmenu', event => event.preventDefault());
 $('#shoot').addEventListener('click', shoot);
@@ -252,15 +240,15 @@ function reset(mode = game.mode) {
   $('#mode-practice').classList.toggle('selected', mode === 'practice'); $('#mode-practice').setAttribute('aria-pressed', mode === 'practice');
   refreshUI(); tone(390, .09, .05);
 }
-$('#mode-duel').addEventListener('click', () => reset('duel'));
-$('#mode-practice').addEventListener('click', () => reset('practice'));
+$('#mode-duel').addEventListener('click', () => { if (game.mode !== 'duel') reset('duel'); });
+$('#mode-practice').addEventListener('click', () => { if (game.mode !== 'practice') reset('practice'); });
 $('#new-button').addEventListener('click', () => reset());
 $('#sound-button').addEventListener('click', () => { soundsOn = !soundsOn; $('#sound-button').classList.toggle('off', !soundsOn); $('#sound-button').setAttribute('aria-label', soundsOn ? 'Desactivar sonido' : 'Activar sonido'); if (soundsOn) tone(620, .09, .04); });
 $('#help-button').addEventListener('click', () => $('#help-dialog').showModal());
 $('#close-help').addEventListener('click', () => $('#help-dialog').close());
 $('#got-it').addEventListener('click', () => $('#help-dialog').close());
 document.addEventListener('keydown', event => {
-  if ($('#help-dialog').open || event.target.matches('input')) return;
+  if ($('#help-dialog').open || event.repeat || event.target.closest('input,button,textarea,select')) return;
   if (event.code === 'Space') { event.preventDefault(); shoot(); }
   if (event.code === 'ArrowLeft') { event.preventDefault(); aimAngle -= event.shiftKey ? .002 : .012; }
   if (event.code === 'ArrowRight') { event.preventDefault(); aimAngle += event.shiftKey ? .002 : .012; }

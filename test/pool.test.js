@@ -1,12 +1,52 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { POCKETS, TABLE, makeBall, rack, step, strike } from '../src/physics.js';
+import { POCKETS, TABLE, makeBall, rack, step, strike, predictAim } from '../src/physics.js';
 import { PoolGame } from '../src/game.js';
 
 function event(overrides = {}) {
   return { firstHit: 1, pocketed: [], collisions: [], rails: [], railAfterHit: true,
     wasBreak: false, groupBefore: null, clearedBefore: false, ...overrides };
 }
+
+test('aim guide stays finite on all four axes and finds a straight object ball', () => {
+  const cue = makeBall(0, 250, 250);
+  for (const angle of [0, Math.PI / 2, Math.PI, -Math.PI / 2]) {
+    const hit = predictAim(cue, [cue], angle);
+    assert.ok(Number.isFinite(hit.t) && hit.t > 0);
+  }
+  const object = makeBall(1, 400, 250);
+  const hit = predictAim(cue, [cue, object], 0);
+  assert.equal(hit.ball, object);
+  assert.equal(hit.t, 150 - TABLE.radius * 2);
+});
+
+test('aim stops at a cushion before a ball beyond the cushion', () => {
+  const cue = makeBall(0, 250, 250);
+  const hit = predictAim(cue, [cue, makeBall(1, 990, 250)], 0);
+  assert.equal(hit.ball, null);
+  assert.equal(hit.t, TABLE.right - TABLE.radius - cue.x);
+});
+
+test('slow shots beside a side pocket rebound off its jaw instead of escaping', () => {
+  for (const x of [475, 525]) {
+    const ball = makeBall(1, x, 100);
+    ball.vy = ball.spinY = -100;
+    const events = event();
+    for (let i = 0; i < 480; i++) step([ball], 1 / 240, events);
+    assert.ok(events.rails.length > 0);
+    assert.ok(ball.pocketed || ball.y >= TABLE.top);
+  }
+});
+
+test('cushion collision occurs one ball radius from its visible face', () => {
+  const ball = makeBall(1, 300, 50);
+  ball.vy = ball.spinY = -100;
+  const events = event();
+  for (let i = 0; i < 12; i++) step([ball], 1 / 240, events);
+  assert.equal(events.rails.length, 1);
+  assert.ok(Math.abs(events.rails[0].y - TABLE.top - TABLE.radius) < .01);
+  assert.ok(ball.vy > 0);
+});
 
 test('rack contains all sixteen numbered balls without overlap', () => {
   const balls = rack();

@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#071412">
+  <title>Sala Ocho — Billar de precisión</title>
+  <link rel="stylesheet" href="./src/styles.css">
+</head>
+<body>
+  <div class="ambient ambient-one"></div><div class="ambient ambient-two"></div>
+  <main class="shell">
+    <header class="masthead">
+      <div class="brand"><div class="brand-mark">8</div><div><span class="eyebrow">BILLAR DE PRECISIÓN</span><h1>SALA <em>OCHO</em></h1></div></div>
+      <div class="header-actions"><button id="help-button" class="icon-button" aria-label="Cómo jugar" title="Cómo jugar">?</button><button id="sound-button" class="icon-button" aria-label="Activar o desactivar sonido" title="Sonido">♪</button><button id="new-button" class="secondary-button">↻ <span>Nueva partida</span></button></div>
+    </header>
+
+    <section class="game-layout" aria-label="Juego de billar">
+      <div class="arena-panel">
+        <div class="scoreboard">
+          <div class="player active" id="player-0"><span class="player-tag">JUGADOR 1</span><strong>Jugador 1</strong><span class="group" id="group-0">Mesa abierta</span><div class="remaining" id="remaining-0"></div></div>
+          <div class="center-score"><span>PARTIDA</span><strong id="turn-counter">01</strong><small id="turn-caption">TURNO</small></div>
+          <div class="player" id="player-1"><span class="player-tag">JUGADOR 2</span><strong id="player-1-name">Jugador 2</strong><span class="group" id="group-1">Mesa abierta</span><div class="remaining" id="remaining-1"></div></div>
+        </div>
+        <div class="table-wrap"><canvas id="table" width="1200" height="650" aria-label="Mesa de billar interactiva"></canvas></div>
+        <div class="table-footer"><div class="shot-status"><span class="live-dot"></span><span id="status" role="status">Apunta con el cursor y dispara</span></div><span class="table-label">SALA OCHO · MESA 01</span></div>
+      </div>
+
+      <aside class="control-panel">
+        <div class="mode-head"><span class="eyebrow">CONFIGURACIÓN</span><h2>Tu próxima jugada</h2></div>
+        <div class="mode-switch" role="group" aria-label="Modo de juego"><button id="mode-duel" class="selected" aria-pressed="true">2 jugadores</button><button id="mode-practice" aria-pressed="false">Práctica</button></div>
+        <div class="divider"></div>
+        <div class="control-heading"><span>01</span><div><strong>Potencia</strong><small>Desliza para afinar el golpe</small></div><b id="power-value">48%</b></div>
+        <input id="power" class="power-slider" aria-label="Potencia del tiro" type="range" min="5" max="100" value="48">
+        <div class="range-labels"><span>SUAVE</span><span>FUERTE</span></div>
+        <div class="divider"></div>
+        <div class="control-heading"><span>02</span><div><strong>Efecto</strong><small>Mueve el punto de impacto</small></div></div>
+        <div class="spin-control"><div class="spin-disc" id="spin-disc" role="group" aria-label="Efecto de la bola blanca"><div class="spin-cross spin-h"></div><div class="spin-cross spin-v"></div><div class="spin-dot" id="spin-dot"></div></div><div class="spin-legend"><span>↑ Seguimiento</span><span>↓ Retroceso</span><span>← → Lateral</span><button id="reset-spin">Centrar efecto</button></div></div>
+        <div class="divider"></div>
+        <button id="shoot" class="shoot-button"><span class="shoot-icon">✦</span><span>DISPARAR</span><span class="key-hint">ESPACIO</span></button>
+        <p class="control-tip">Mueve el cursor sobre la mesa para apuntar. Usa <kbd>←</kbd> <kbd>→</kbd> para ajustar el ángulo.</p>
+      </aside>
+    </section>
+    <footer class="page-footer"><span>LA PRECISIÓN DECIDE LA PARTIDA</span><span>Hecho para jugar en cualquier pantalla</span></footer>
+  </main>
+  <dialog id="help-dialog"><div class="dialog-inner"><button id="close-help" class="dialog-close" aria-label="Cerrar">×</button><span class="eyebrow">MANUAL DE JUEGO</span><h2>Cada tiro cuenta.</h2><p>Apunta moviendo el cursor sobre la mesa y dispara con el botón o la barra espaciadora. En pantalla táctil, toca la dirección deseada. Ajusta la potencia y mueve el punto rojo de la bola blanca para dar seguimiento, retroceso o efecto lateral.</p><p>En <strong>2 jugadores</strong>, emboca una lisa o rayada para elegir grupo. Debes tocar primero una bola de tu grupo y después embocar o alcanzar una banda. Emboca la 8 tras limpiar tu grupo para ganar. Tras una falta, el rival coloca la blanca con un toque.</p><p>En <strong>Práctica</strong>, experimenta libremente; la blanca se recoloca tras una falta.</p><button id="got-it" class="shoot-button">¡A jugar!</button></div></dialog>
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>

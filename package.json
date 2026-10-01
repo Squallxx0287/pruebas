@@ -1,0 +1,14 @@
+{
+  "name": "sala-ocho",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node server.js",
+    "test": "node --test --test-isolation=none",
+    "check": "node --check server.js && node --check src/physics.js && node --check src/game.js && node --check src/main.js"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

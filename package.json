@@ -1,12 +1,12 @@
 {
-  "name": "neon-rift",
+  "name": "deadzone-protocol-zero",
   "version": "1.0.0",
   "private": true,
   "type": "module",
   "scripts": {
     "dev": "node server.js",
     "test": "node --test --test-isolation=none",
-    "check": "node --check server.js && node --check src/rift.js && node --check src/main.js"
+    "check": "node --check server.js && node --check src/survival.js && node --check src/graphics.js && node --check src/main.js"
   },
   "engines": {
     "node": ">=24"

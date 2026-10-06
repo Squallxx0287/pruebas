@@ -30,5 +30,5 @@ createServer(async (request, response) => {
     response.writeHead(404).end();
   }
 }).listen(port, '127.0.0.1', () => {
-  console.log(`NEON RIFT listo en http://localhost:${port}`);
+  console.log(`DEADZONE listo en http://localhost:${port}`);
 });

@@ -1,49 +1,346 @@
 <!doctype html>
 <html lang="es">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#09090e">
-  <meta name="description" content="NEON RIFT: seis oleadas, un núcleo y ninguna salida. Un arcade de supervivencia con dash, mejoras y combate de neón.">
-  <title>NEON RIFT — Rompe el vacío</title>
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath fill='%23d5ff5f' d='M32 2 60 32 32 62 4 32z'/%3E%3Cpath fill='%2309090e' d='m22 20 22 12-22 12 5-12z'/%3E%3C/svg%3E">
-  <link rel="stylesheet" href="./src/styles.css">
-</head>
-<body>
-  <canvas id="arena" tabindex="0" aria-label="Arena de combate de NEON RIFT. WASD para moverte, ratón para apuntar, clic para disparar, espacio para dash."></canvas>
-  <div class="grain" aria-hidden="true"></div><div class="vignette" aria-hidden="true"></div>
-  <header class="topbar">
-    <a class="wordmark" href="./" aria-label="NEON RIFT, inicio"><span class="brand-icon">◈</span> NEON<span>RIFT</span><sup>®</sup></a>
-    <div class="topbar-center"><span class="status-led"></span><span id="connection-label">SISTEMA EN LÍNEA</span><span class="version">/ V.01</span></div>
-    <div class="topbar-actions"><button id="sound-button" class="small-button" aria-label="Desactivar sonido" title="Activar o desactivar sonido">SONIDO <span id="sound-label">ON</span></button><button id="pause-button" class="small-button" hidden>PAUSA <kbd>ESC</kbd></button><button id="help-button" class="icon-button" aria-label="Ver controles">?</button></div>
-  </header>
-  <main id="menu" class="menu">
-    <div class="hero-copy">
-      <div class="eyebrow"><span class="tiny-cross">✳</span> ARCADE DE SUPERVIVENCIA <span class="pill">SOLO / OFFLINE</span></div>
-      <h1>ROMPE<br>EL <span class="outline-text">VACÍO</span><span class="title-dot">.</span></h1>
-      <p class="hero-description">El último piloto. Un enjambre sin fin.<br>Convierte el caos en tu mejor jugada.</p>
-      <div class="launch-row"><button id="start-button" class="primary-button"><span>INICIAR INCURSIÓN</span><span class="button-arrow">↗</span></button><span class="launch-hint">SEIS OLEADAS.<br>UNA OPORTUNIDAD.</span></div>
-      <div class="hero-controls"><span><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> MOVER</span><span><svg viewBox="0 0 16 20" aria-hidden="true"><rect x="2" y="1" width="12" height="18" rx="6"/><path d="M8 1v7M2 8h12"/></svg> APUNTAR + DISPARAR</span><span><kbd>ESPACIO</kbd> DASH</span></div>
-      <p class="mobile-instructions">Arrastra para moverte · disparo automático · botones para dash y pulso</p>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#111612" />
+    <meta
+      name="description"
+      content="DEADZONE: Protocolo Cero. Un FPS de supervivencia contra zombis con cinco escenarios, cinco jefes y diez armas únicas."
+    />
+    <title>DEADZONE — Protocolo Cero</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath fill='%23e8ad65' d='M0 0h64v64H0z'/%3E%3Cpath fill='%23111612' d='M15 10h18l16 12v20L33 54H15zm11 10v24h6l7-6V26l-7-6z'/%3E%3C/svg%3E"
+    />
+    <link rel="stylesheet" href="./src/styles.css" />
+  </head>
+  <body>
+    <canvas
+      id="world"
+      tabindex="0"
+      aria-label="DEADZONE, juego en primera persona"
+    ></canvas>
+    <div class="film-grain" aria-hidden="true"></div>
+    <div id="loading" class="loading">
+      <span class="load-logo">DEADZONE<span>®</span></span
+      ><span class="eyebrow">PROTOCOLO CERO // CONSTRUYENDO EL DISTRITO</span>
+      <div class="load-track"><i></i></div>
+      <p id="loading-message">
+        Preparando geometría, materiales e iluminación…
+      </p>
     </div>
-    <aside class="hero-visual-label" aria-hidden="true"><div class="target-label"><span class="tiny-cross">+</span> PILOTO NR—01 <span class="tiny-cross">+</span></div><div class="visual-spec">PROPULSOR DE IONES<br>INTEGRIDAD 100%<br><span>LISTO PARA EL SALTO</span></div></aside>
-    <div class="menu-bottom"><div class="mission-card"><span class="card-number">01 /</span><div><span class="eyebrow">LA MISIÓN</span><p>Sobrevive. Evoluciona.<br>Destruye el Núcleo.</p></div></div><div class="mission-card"><span class="card-number">02 /</span><div><span class="eyebrow">TU VENTAJA</span><p>El dash te vuelve invulnerable.<br>Úsalo para atravesar el peligro.</p></div></div><div class="record-card"><span class="eyebrow">RÉCORD PERSONAL</span><strong id="menu-best">000000</strong><span class="record-caption">SUPÉRALO.</span></div></div>
-    <footer class="menu-footer"><span>HECHO DE LUZ. DISEÑADO PARA EL CAOS.</span><span>NO DESCARGAS. NO EXCUSAS. <span class="lime">↗</span></span></footer>
-  </main>
-  <section id="hud" class="hud" hidden aria-label="Estado de la partida">
-    <div class="hud-left"><div class="hud-caption">PILOTO NR—01 <span id="health-number">100</span></div><div class="health-track"><div id="health-fill"></div></div><div class="ability-row"><div class="ability"><kbd>ESPACIO</kbd><span>DASH</span><div class="mini-track"><i id="dash-fill"></i></div></div><div class="ability pulse-ability"><kbd>E</kbd><span>COLAPSO</span><div class="mini-track"><i id="pulse-fill"></i></div></div></div><div id="loadout" class="loadout"></div></div>
-    <div class="hud-center"><div class="hud-caption">OLEADA <span id="wave-number">01 / 06</span></div><div class="wave-track"><div id="wave-fill"></div></div><div id="wave-objective" class="wave-objective">ELIMINA EL ENJAMBRE</div></div>
-    <div class="hud-right"><span class="hud-caption">PUNTUACIÓN</span><strong id="score">000000</strong><div class="score-details"><span id="run-time">00:00</span><span id="combo">×1</span></div></div>
-    <div id="boss-hud" class="boss-hud" hidden><span>EL NÚCLEO <b>ENTIDAD HOSTIL // Ω</b></span><div class="boss-track"><i id="boss-fill"></i></div></div>
-    <div class="hud-bottom"><span id="kills-label">0 HOSTILES ELIMINADOS</span><span id="combat-hint">MANTÉN CLIC PARA DISPARAR · ESPACIO PARA EVADIR · E PARA COLAPSO</span><canvas id="minimap" width="180" height="120" aria-label="Radar de enemigos"></canvas></div>
-    <div id="toast" class="toast" aria-live="polite"></div>
-    <div id="wave-announcement" class="wave-announcement"><span id="announcement-kicker"></span><strong id="announcement-title"></strong><span id="announcement-subtitle"></span></div>
-  </section>
-  <div id="touch-controls" class="touch-controls" hidden><div id="joystick" class="joystick"><div id="joystick-knob"></div><span>MOVER</span></div><div class="touch-actions"><button id="touch-pulse" aria-label="Activar colapso">◉<small>PULSO</small></button><button id="touch-dash" aria-label="Usar dash">↯<small>DASH</small></button></div></div>
-  <section id="upgrade-screen" class="overlay" hidden aria-labelledby="upgrade-title"><div class="upgrade-panel"><span class="eyebrow lime">SECTOR DESPEJADO // EVOLUCIÓN DISPONIBLE</span><h2 id="upgrade-title">ADÁPTATE AL <em>CAOS.</em></h2><p>Elige una mejora. Tu siguiente oleada no tendrá piedad.</p><div id="upgrade-cards" class="upgrade-cards"></div><span class="overlay-footnote">LAS MEJORAS SE ACUMULAN DURANTE LA INCURSIÓN</span></div></section>
-  <section id="pause-screen" class="overlay" hidden aria-labelledby="pause-title"><div class="compact-panel"><span class="eyebrow lime">SEÑAL EN ESPERA</span><h2 id="pause-title">TOMA<br><em>AIRE.</em></h2><p>El vacío puede esperar un momento.</p><button id="resume-button" class="primary-button"><span>CONTINUAR</span><span>↗</span></button><button id="quit-button" class="text-button">ABANDONAR INCURSIÓN</button></div></section>
-  <section id="end-screen" class="overlay" hidden aria-labelledby="end-title"><div class="end-panel"><span id="end-kicker" class="eyebrow">SEÑAL PERDIDA // NR—01</span><h2 id="end-title">EL VACÍO<br><em>RECLAMA.</em></h2><p id="end-description">Una incursión más. Una razón para volver.</p><div id="new-record" class="new-record" hidden>↗ NUEVO RÉCORD PERSONAL</div><div class="end-stats"><div><span>PUNTUACIÓN</span><strong id="end-score">0</strong></div><div><span>OLEADA</span><strong id="end-wave">1</strong></div><div><span>ELIMINADOS</span><strong id="end-kills">0</strong></div><div><span>TIEMPO</span><strong id="end-time">0:00</strong></div></div><button id="retry-button" class="primary-button"><span>OTRA INCURSIÓN</span><span>↗</span></button><button id="menu-button" class="text-button">VOLVER A LA BASE</button></div></section>
-  <dialog id="help-dialog"><div class="help-panel"><button id="close-help" class="dialog-close" aria-label="Cerrar ayuda">×</button><span class="eyebrow lime">MANUAL DEL PILOTO</span><h2>DOMINA<br><em>EL RIFT.</em></h2><div class="help-row"><kbd>WASD / ↑↓←→</kbd><p>Muévete por la arena. El cursor marca la dirección de tus disparos.</p></div><div class="help-row"><kbd>CLIC / F</kbd><p>Mantén pulsado para disparar. En móvil, la nave apunta y dispara al enemigo más cercano.</p></div><div class="help-row"><kbd>ESPACIO / SHIFT</kbd><p>Dash: atraviesa enemigos y proyectiles sin recibir daño. Recarga en 1,4 segundos.</p></div><div class="help-row"><kbd>E</kbd><p>Colapso: recoge fragmentos hasta cargar el pulso. Borra los proyectiles cercanos y daña a todo lo que te rodea.</p></div><div class="help-row"><kbd>ESC / P</kbd><p>Pausa. Elimina cada oleada, elige mejoras y derrota al Núcleo en el sector 6.</p></div><button id="got-it" class="primary-button"><span>ENTENDIDO</span><span>↗</span></button></div></dialog>
-  <script type="module" src="./src/main.js"></script>
-</body>
+    <header id="topbar" class="topbar">
+      <a class="brand" href="./"
+        ><svg viewBox="0 0 32 32">
+          <path d="M6 3h13l9 8v10l-9 8H6zm7 7v12h4l5-4v-4l-5-4z" /></svg
+        >DEADZONE<sup>®</sup></a
+      ><span class="top-meta"
+        ><i class="signal-dot"></i> PROTOCOLO CERO
+        <span>/ 03:17 A.M.</span></span
+      >
+      <div class="top-actions">
+        <button id="arsenal-button">ARSENAL <kbd>TAB</kbd></button
+        ><button id="sound-button">AUDIO <b id="sound-label">ON</b></button
+        ><button id="quality-button">
+          GRÁFICOS <b id="quality-label">ALTO</b></button
+        ><button
+          id="help-button"
+          class="help-button"
+          aria-label="Ver controles"
+        >
+          ?
+        </button>
+      </div>
+    </header>
+    <main id="menu" class="menu" hidden>
+      <div class="menu-copy">
+        <div class="eyebrow">
+          <span class="accent-slash">//</span> SUPERVIVENCIA EN PRIMERA PERSONA
+          <span class="tag">CAMPAÑA</span>
+        </div>
+        <h1>
+          NO QUEDA<br /><span class="outline">NADIE</span
+          ><span class="orange">.</span>
+        </h1>
+        <p class="menu-description">
+          La infección tomó la ciudad.<br />Diez armas. Cinco zonas. Tú contra
+          lo que queda.
+        </p>
+        <div class="menu-cta">
+          <button id="start-button" class="primary">
+            <span>ENTRAR A LA ZONA</span><i class="arrow"></i></button
+          ><span class="cta-note"
+            >NO HAY REFUERZOS.<br />NO HAY VUELTA ATRÁS.</span
+          >
+        </div>
+        <div class="menu-controls">
+          <span><kbd>WASD</kbd> MOVER</span><span><kbd>RATÓN</kbd> APUNTAR</span
+          ><span><kbd>CLIC</kbd> DISPARAR</span
+          ><span><kbd>R</kbd> RECARGAR</span>
+        </div>
+        <p class="touch-hint">
+          Joystick para moverte · desliza para mirar · botones para disparar
+        </p>
+      </div>
+      <div class="specimen-label" aria-hidden="true">
+        <span class="eyebrow">ESPÉCIMEN // 001</span
+        ><strong>ELLOS YA<br />TE VIERON.</strong>
+        <div><i class="signal-dot red-dot"></i> INFECCIÓN CONFIRMADA</div>
+      </div>
+      <div class="campaign-strip">
+        <div class="campaign-label">
+          <span class="eyebrow">LA RUTA</span
+          ><strong>05 ZONAS.<br />05 JEFES.</strong>
+        </div>
+        <div id="menu-levels" class="menu-levels"></div>
+        <div class="record">
+          <span class="eyebrow">MEJOR INCURSIÓN</span
+          ><strong id="best-score">000000</strong>
+        </div>
+      </div>
+      <footer class="menu-footer">
+        <span>EL ÚLTIMO PROTOCOLO ES SOBREVIVIR.</span
+        ><span>3D REAL · ARSENAL COMPLETO · SIN DESCARGAS EXTERNAS</span>
+      </footer>
+    </main>
+    <section id="hud" class="hud" hidden aria-label="Estado de la partida">
+      <div class="objective">
+        <span class="eyebrow">PROTOCOLO CERO <i class="signal-dot"></i></span
+        ><strong id="level-title">EL DISTRITO</strong
+        ><span id="objective-text">ELIMINA LA HORDA</span>
+        <div class="objective-track"><i id="objective-fill"></i></div>
+      </div>
+      <div class="level-counter">
+        <span>SECTOR</span><strong id="level-number">01<span>/05</span></strong
+        ><span id="clock">00:00</span>
+      </div>
+      <div class="hud-actions">
+        <button id="game-pause" aria-label="Pausar">II</button
+        ><button id="game-arsenal" aria-label="Abrir arsenal">TAB</button>
+      </div>
+      <div id="boss-hud" class="boss-hud" hidden>
+        <span
+          ><b id="boss-name">EL CARNICERO</b
+          ><small>AMENAZA CLASE Ω</small></span
+        >
+        <div><i id="boss-fill"></i></div>
+        <small id="boss-health"></small>
+      </div>
+      <div id="crosshair" class="crosshair">
+        <i></i><i></i><i></i><i></i><b></b>
+      </div>
+      <div id="scope" class="scope" hidden>
+        <div class="scope-lens"><i></i><b></b><span>LONGSHOT // 4×</span></div>
+      </div>
+      <div id="hit-marker" class="hit-marker"><i></i><i></i></div>
+      <div id="damage-direction" class="damage-direction"></div>
+      <div id="announcement" class="announcement">
+        <span id="announcement-kicker"></span
+        ><strong id="announcement-title"></strong>
+        <p id="announcement-copy"></p>
+      </div>
+      <div id="kill-message" class="kill-message"></div>
+      <div id="toast" class="toast" aria-live="polite"></div>
+      <div class="health-hud">
+        <div class="health-main">
+          <span class="health-icon">+</span><strong id="health">100</strong
+          ><span>INTEGRIDAD<br /><b id="health-status">ESTABLE</b></span>
+        </div>
+        <div class="health-track"><i id="health-fill"></i></div>
+        <div class="stamina-track"><i id="stamina-fill"></i></div>
+        <div class="equipment">
+          <span><kbd>G</kbd> <b id="grenades">3</b> GRANADAS</span
+          ><span><kbd>F</kbd> LINTERNA</span>
+        </div>
+      </div>
+      <div class="ammo-hud">
+        <span id="weapon-category">FUSIL DE ASALTO</span
+        ><strong id="weapon-name">AK-47 REVENANT</strong>
+        <div class="ammo-count">
+          <b id="magazine">30</b><span>/ <i id="reserve">240</i></span>
+        </div>
+        <div class="ammo-meta">
+          <span id="fire-mode">AUTO</span
+          ><span id="reload-text"><kbd>R</kbd> RECARGAR</span>
+        </div>
+        <div class="reload-track"><i id="reload-fill"></i></div>
+      </div>
+      <div id="weapon-belt" class="weapon-belt"></div>
+      <div class="hud-footer">
+        <span id="kills">0 BAJAS</span><span id="score">000000 PTS</span>
+      </div>
+      <div id="damage-numbers" class="damage-numbers"></div>
+      <div id="lock-hint" class="lock-hint" hidden>
+        CLIC PARA VOLVER AL COMBATE
+      </div>
+    </section>
+    <div id="mobile-controls" class="mobile-controls" hidden>
+      <div id="joystick" class="joystick"><i id="joystick-knob"></i></div>
+      <div id="look-pad" class="look-pad" aria-label="Desliza para mirar"></div>
+      <div class="touch-buttons">
+        <button id="touch-fire" aria-label="Disparar">
+          ◎<small>FUEGO</small></button
+        ><button id="touch-aim" aria-label="Apuntar">⊕</button
+        ><button id="touch-reload" aria-label="Recargar">R</button
+        ><button id="touch-weapon" aria-label="Cambiar arma">⇄</button
+        ><button id="touch-grenade" aria-label="Lanzar granada">G</button>
+      </div>
+    </div>
+    <section
+      id="arsenal-screen"
+      class="overlay arsenal-screen"
+      hidden
+      aria-labelledby="arsenal-title"
+    >
+      <div class="arsenal-panel">
+        <div class="panel-heading">
+          <div>
+            <span class="eyebrow orange"
+              >SUMINISTROS // 10 SISTEMAS DE ARMAMENTO</span
+            >
+            <h2 id="arsenal-title">ELIGE TU <em>VENTAJA.</em></h2>
+            <p>
+              Diez armas. Diez formas de sobrevivir. Selecciona una para
+              equiparla.
+            </p>
+          </div>
+          <button
+            id="close-arsenal"
+            class="close-button"
+            aria-label="Cerrar arsenal"
+          >
+            ×
+          </button>
+        </div>
+        <div id="arsenal-grid" class="arsenal-grid"></div>
+        <div class="arsenal-foot">
+          <span>TODAS DISPONIBLES DESDE EL INICIO</span
+          ><span>1–9 / 0 · RUEDA DEL RATÓN · TAB PARA CERRAR</span>
+        </div>
+      </div>
+    </section>
+    <section id="pause-screen" class="overlay" hidden>
+      <div class="compact-panel">
+        <span class="eyebrow orange">COMUNICACIÓN EN ESPERA</span>
+        <h2>NO BAJES<br /><em>LA GUARDIA.</em></h2>
+        <p>Respira. Recarga. Vuelve al combate.</p>
+        <button id="resume-button" class="primary">
+          <span>CONTINUAR</span><i class="arrow"></i></button
+        ><button id="quit-button" class="text-button">
+          ABANDONAR INCURSIÓN
+        </button>
+      </div>
+    </section>
+    <section id="level-screen" class="overlay" hidden>
+      <div class="level-panel">
+        <span class="eyebrow orange"
+          >AMENAZA NEUTRALIZADA // SECTOR DESPEJADO</span
+        >
+        <h2 id="clear-title">DISTRITO<br /><em>LIBERADO.</em></h2>
+        <p id="clear-copy"></p>
+        <div class="transition-stats">
+          <div>
+            <span>BAJAS TOTALES</span><strong id="clear-kills">13</strong>
+          </div>
+          <div>
+            <span>PUNTUACIÓN</span><strong id="clear-score">000000</strong>
+          </div>
+          <div>
+            <span>SIGUIENTE SECTOR</span
+            ><strong id="next-name">MUELLE 13</strong>
+          </div>
+        </div>
+        <div class="supply-notice">
+          <span>+</span> MUNICIÓN REABASTECIDA · +45 INTEGRIDAD · 3 GRANADAS
+        </div>
+        <button id="next-button" class="primary">
+          <span>AVANZAR AL SIGUIENTE SECTOR</span><i class="arrow"></i></button
+        ><button id="intermission-arsenal" class="text-button">
+          REVISAR ARSENAL
+        </button>
+      </div>
+    </section>
+    <section id="end-screen" class="overlay" hidden>
+      <div class="end-panel">
+        <span id="end-kicker" class="eyebrow orange"
+          >PROTOCOLO FALLIDO // SEÑAL PERDIDA</span
+        >
+        <h2 id="end-title">NO ERAS<br /><em>INMORTAL.</em></h2>
+        <p id="end-description">
+          La zona sigue ahí. Tu próxima incursión también.
+        </p>
+        <div id="new-record" class="new-record" hidden>
+          NUEVO RÉCORD PERSONAL
+        </div>
+        <div class="end-stats">
+          <div>
+            <span>PUNTUACIÓN</span><strong id="end-score">000000</strong>
+          </div>
+          <div><span>NIVEL</span><strong id="end-level">1 / 5</strong></div>
+          <div><span>BAJAS</span><strong id="end-kills">0</strong></div>
+          <div>
+            <span>A LA CABEZA</span><strong id="end-headshots">0</strong>
+          </div>
+          <div><span>TIEMPO</span><strong id="end-time">00:00</strong></div>
+        </div>
+        <button id="retry-button" class="primary">
+          <span>VOLVER A INTENTAR</span><i class="arrow"></i></button
+        ><button id="menu-button" class="text-button">VOLVER A LA BASE</button>
+      </div>
+    </section>
+    <dialog id="help-dialog">
+      <button id="close-help" class="close-button" aria-label="Cerrar ayuda">
+        ×</button
+      ><span class="eyebrow orange">MANUAL DEL SUPERVIVIENTE</span>
+      <h2>NO MIRES<br /><em>ATRÁS.</em></h2>
+      <div class="help-row">
+        <kbd>WASD</kbd>
+        <p>
+          Movimiento. Shift para correr y C para agacharte. Los enemigos rodean
+          los obstáculos.
+        </p>
+      </div>
+      <div class="help-row">
+        <kbd>RATÓN / CLIC</kbd>
+        <p>
+          Mira y dispara. Clic derecho para apuntar. El francotirador tiene mira
+          telescópica. Los disparos a la cabeza causan más daño.
+        </p>
+      </div>
+      <div class="help-row">
+        <kbd>R / G / F</kbd>
+        <p>
+          Recargar / lanzar granada / linterna. Los cohetes cercanos también
+          pueden dañarte.
+        </p>
+      </div>
+      <div class="help-row">
+        <kbd>1–9 / 0 / TAB</kbd>
+        <p>
+          Diez armas disponibles. Cambia con números o rueda del ratón, o
+          inspecciónalas en el arsenal.
+        </p>
+      </div>
+      <div class="help-row">
+        <kbd>ESC / P</kbd>
+        <p>
+          Pausa. Mata a toda la horda para que aparezca el jefe. Derríbalo para
+          avanzar. Hay cinco niveles.
+        </p>
+      </div>
+      <p class="help-note">
+        En móvil: joystick izquierdo, desliza a la derecha para mirar y usa los
+        botones de acción. En escritorio, haz clic en la arena para capturar el
+        cursor.
+      </p>
+      <button id="got-it" class="primary">
+        <span>ENTENDIDO</span><i class="arrow"></i>
+      </button>
+    </dialog>
+    <script type="module" src="./src/main.js"></script>
+  </body>
 </html>

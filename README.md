@@ -1,45 +1,73 @@
-# NEON RIFT
+# DEADZONE — Protocolo Cero
 
-Un arcade de supervivencia espacial para navegador. Pilota una nave de iones por seis sectores, combina mejoras y destruye el Núcleo. Arte procedural en Canvas 2D, partículas, sonido y música sintetizados en tiempo real. Sin dependencias externas ni descargas de recursos.
+FPS de supervivencia contra zombis para navegador. Cinco niveles con hordas crecientes, un jefe distinto al final de cada nivel y diez armas disponibles desde el comienzo. Escenarios, personajes, armas, texturas, efectos y audio generados localmente. Gráficos 3D procedurales de estilo cinematográfico, con materiales físicos, sombras, niebla, iluminación ambiental, fuego y partículas.
 
 ## Ejecutar
 
-Node.js 24 o superior:
+Requiere Node.js 24 para el servidor y las pruebas. Para jugar se necesita un navegador moderno con **WebGL 2**; se recomienda aceleración gráfica por hardware.
 
 ```sh
 cd /workspace/pruebas
 npm run dev
 ```
 
-El servidor escucha en el puerto 4173. `PORT` permite cambiarlo. Abre el juego en un navegador moderno. No hace falta ejecutar `npm install` ni compilar.
+Puerto predeterminado: 4173. `PORT` permite cambiarlo. No hace falta instalar paquetes ni compilar: Three.js 0.170.0 está incluido en `src/vendor/`, con licencia MIT y procedencia verificable. El juego no descarga modelos, audio ni bibliotecas de otros dominios.
 
 ```sh
 npm test
 npm run check
 ```
 
-Las pruebas cubren combate, colisiones continuas, invulnerabilidad, mejoras, progresión, pausa, puntuación y una incursión completa hasta el jefe.
+Las 19 pruebas verifican colisiones, impactos en cabeza/cuerpo, cobertura, movimiento, recargas, diez armas, granadas, explosiones, fuego persistente, navegación, suministros, pausa, ataques de jefes y progresión hasta la victoria. También incluyen un combate simulado que completa la primera horda y su jefe usando entradas de movimiento, apuntado, disparo y recarga.
 
 ## Controles
 
-- **WASD / flechas:** movimiento.
-- **Ratón + clic mantenido / F:** apuntar y disparar.
-- **Espacio / Shift / clic derecho:** dash con invulnerabilidad y daño por contacto.
-- **E:** colapso al cargarlo con fragmentos azules; daña enemigos y elimina proyectiles cercanos.
-- **Esc / P:** pausa.
-- **1 / 2 / 3:** elegir mejora entre oleadas.
-- **Móvil:** joystick táctil, apuntado y disparo automáticos, botones de dash y pulso.
+| Acción       | Control                                            |
+| ------------ | -------------------------------------------------- |
+| Movimiento   | WASD / flechas                                     |
+| Mirar        | Ratón; clic en la arena para capturar el cursor    |
+| Disparar     | Clic izquierdo; mantener para armas automáticas    |
+| Apuntar      | Mantener clic derecho; mira telescópica con el AWP |
+| Recargar     | R                                                  |
+| Correr       | Shift, consume resistencia                         |
+| Agacharse    | Mantener C                                         |
+| Granada      | G, tres por nivel                                  |
+| Linterna     | F                                                  |
+| Cambiar arma | 1–9 y 0, o rueda del ratón                         |
+| Arsenal      | Tab                                                |
+| Pausa        | Esc / P                                            |
 
-Elimina todos los enemigos de cada oleada para elegir una mejora. Las mejoras se acumulan. En la sexta oleada, destruye el Núcleo para ganar. Encadena bajas sin recibir daño para multiplicar tu puntuación. Los fragmentos verdes recuperan integridad. Se recuperan 12 puntos al entrar en un nuevo sector.
+En móvil: joystick izquierdo, deslizar en el área derecha para mirar, botones para disparar, apuntar, recargar, cambiar arma y lanzar granadas. Al perder el foco se pausa la partida.
 
-El récord y la preferencia de sonido se guardan localmente cuando el navegador permite almacenamiento. La partida se pausa al perder el foco. El juego respeta la preferencia de movimiento reducido para las animaciones de menú y el temblor de cámara.
+## Campaña
 
-## Estructura
+| Nivel | Zona         | Horda | Jefe                                    |
+| ----- | ------------ | ----: | --------------------------------------- |
+| 1     | El Distrito  |    12 | El Carnicero: embestidas                |
+| 2     | Muelle 13    |    22 | El Acechador: cargas rápidas            |
+| 3     | La Fundición |    34 | La Colmena: esporas y ácido             |
+| 4     | Cuarentena   |    48 | El Blindado: armadura y ondas de choque |
+| 5     | Zona Cero    |    64 | Paciente Cero: ácido, ondas y refuerzos |
 
-- `src/rift.js`: simulación independiente de la interfaz, oleadas, combate y mejoras.
-- `src/main.js`: render, efectos, audio, controles e interfaz.
+Elimina toda la horda para provocar la aparición del jefe. Derrotarlo permite avanzar al siguiente sector. Entre niveles recuperas hasta 45 puntos de integridad, repones toda la munición y obtienes tres granadas. Los suministros de los enemigos permiten recuperar salud y munición durante el combate. Destruir al quinto jefe completa la campaña.
+
+## Arsenal
+
+P9 Sentinel, M44 Executioner, MP5 Phantom, AK-47 Revenant, M870 Breacher, DB-2 Judgement, AWP Longshot, M249 Devastator, Ignis Incinerator y RPG-7 Apocalypse. Cada arma tiene modelo 3D, cargador, cadencia, daño, dispersión, tiempo de recarga, retroceso y sonido propios. Las escopetas disparan múltiples perdigones; el AWP atraviesa objetivos; Ignis quema en un cono y mantiene daño residual; el RPG explota con daño de área y puede herirte si disparas muy cerca.
+
+## Gráficos y rendimiento
+
+El menú permite seleccionar gráficos ALTO/BAJO. La geometría estática se agrupa por material y las piezas de los personajes usan instancias. Las luces locales se limitan a las cuatro más cercanas. Los efectos tienen límites de partículas y cadáveres. La simulación utiliza pasos cortos independientes del render. El modo bajo reduce la resolución, desactiva sombras y el resplandor de postprocesado; conserva modelos, texturas y mecánicas.
+
+La velocidad depende del equipo. Chromium con render por software sirve para validar WebGL y las interacciones, pero no representa el rendimiento de una GPU física. El récord y las preferencias se guardan en el almacenamiento local cuando está disponible.
+
+## Archivos
+
+- `src/survival.js`: simulación, campaña, armas, navegación y colisiones.
+- `src/graphics.js`: escenarios, modelos 3D, texturas, luces y efectos.
+- `src/main.js`: controles, audio, interfaces y bucle de juego.
 - `src/styles.css`: diseño adaptable.
-- `test/rift.test.js`: pruebas con el runner nativo de Node.
-- `server.js`: servidor local sin dependencias.
+- `test/survival.test.js`: pruebas nativas de Node.
+- `src/vendor/`: Three.js, su licencia y la integridad del paquete original.
 
-El sitio es estático: `index.html` y `src/` se pueden servir en GitHub Pages. El flujo existente de CI valida el juego antes de publicar.
+La aplicación es estática. `index.html`, `.nojekyll` y `src/` se pueden publicar en GitHub Pages. El flujo de CI ejecuta las pruebas y la comprobación de sintaxis antes de desplegar.

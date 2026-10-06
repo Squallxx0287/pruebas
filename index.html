@@ -2,346 +2,465 @@
 <html lang="es">
   <head>
     <meta charset="utf-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1, viewport-fit=cover"
-    />
-    <meta name="theme-color" content="#111612" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#7d5bd6" />
     <meta
       name="description"
-      content="DEADZONE: Protocolo Cero. Un FPS de supervivencia contra zombis con cinco escenarios, cinco jefes y diez armas únicas."
+      content="Aprende las tablas de multiplicar del 1 al 12 con dibujos, personajes del bosque y aventuras sin prisas. Un juego gratuito para pequeños exploradores."
     />
-    <title>DEADZONE — Protocolo Cero</title>
+    <title>MultiplicaClub · Pequeñas cuentas, grandes aventuras</title>
     <link
       rel="icon"
-      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath fill='%23e8ad65' d='M0 0h64v64H0z'/%3E%3Cpath fill='%23111612' d='M15 10h18l16 12v20L33 54H15zm11 10v24h6l7-6V26l-7-6z'/%3E%3C/svg%3E"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='18' fill='%237d5bd6'/%3E%3Cpath d='m32 11 6 13 14 2-10 10 2 14-12-7-12 7 2-14-10-10 14-2Z' fill='%23ffe49b'/%3E%3C/svg%3E"
     />
-    <link rel="stylesheet" href="./src/styles.css" />
+    <link
+      rel="preload"
+      href="./src/multiplica/assets/nunito-700.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="./src/multiplica/assets/fredoka-500.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link rel="stylesheet" href="./src/multiplica/styles.css" />
   </head>
   <body>
-    <canvas
-      id="world"
-      tabindex="0"
-      aria-label="DEADZONE, juego en primera persona"
-    ></canvas>
-    <div class="film-grain" aria-hidden="true"></div>
-    <div id="loading" class="loading">
-      <span class="load-logo">DEADZONE<span>®</span></span
-      ><span class="eyebrow">PROTOCOLO CERO // CONSTRUYENDO EL DISTRITO</span>
-      <div class="load-track"><i></i></div>
-      <p id="loading-message">
-        Preparando geometría, materiales e iluminación…
-      </p>
-    </div>
-    <header id="topbar" class="topbar">
-      <a class="brand" href="./"
-        ><svg viewBox="0 0 32 32">
-          <path d="M6 3h13l9 8v10l-9 8H6zm7 7v12h4l5-4v-4l-5-4z" /></svg
-        >DEADZONE<sup>®</sup></a
-      ><span class="top-meta"
-        ><i class="signal-dot"></i> PROTOCOLO CERO
-        <span>/ 03:17 A.M.</span></span
+    <a class="skip-link" href="#main">Ir al juego</a>
+    <aside class="sidebar" aria-label="Menú principal">
+      <a class="brand" href="./" aria-label="MultiplicaClub, inicio"
+        ><span class="brand-mark" data-icon="star"></span
+        ><span
+          >multiplica<span class="brand-club">club</span
+          ><small>EL CLUB DE LOS PEQUEÑOS GENIOS</small></span
+        ></a
       >
-      <div class="top-actions">
-        <button id="arsenal-button">ARSENAL <kbd>TAB</kbd></button
-        ><button id="sound-button">AUDIO <b id="sound-label">ON</b></button
-        ><button id="quality-button">
-          GRÁFICOS <b id="quality-label">ALTO</b></button
-        ><button
-          id="help-button"
-          class="help-button"
-          aria-label="Ver controles"
-        >
-          ?
+      <div class="sidebar-label">¡VAMOS A DESCUBRIR!</div>
+      <nav class="navigation">
+        <button class="nav-item active" data-page="home" aria-current="page">
+          <span data-icon="home"></span><span>Mi aventura</span><i></i>
         </button>
-      </div>
-    </header>
-    <main id="menu" class="menu" hidden>
-      <div class="menu-copy">
-        <div class="eyebrow">
-          <span class="accent-slash">//</span> SUPERVIVENCIA EN PRIMERA PERSONA
-          <span class="tag">CAMPAÑA</span>
+        <button class="nav-item" data-page="study">
+          <span data-icon="book"></span><span>Aprender</span>
+        </button>
+        <button class="nav-item" data-page="setup">
+          <span data-icon="game"></span><span>Practicar</span>
+        </button>
+        <button class="nav-item" data-page="rewards">
+          <span data-icon="trophy"></span><span>Mis logros</span
+          ><span class="nav-badge" id="badge-count">0</span>
+        </button>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="friend-card">
+          <span id="sidebar-fox"></span><strong>Cada pasito cuenta.</strong>
+          <p>Tu gran aventura empieza<br />con una pequeña cuenta.</p>
+          <span class="friend-stars">✦ &nbsp; ✧ &nbsp; ✦</span>
         </div>
-        <h1>
-          NO QUEDA<br /><span class="outline">NADIE</span
-          ><span class="orange">.</span>
-        </h1>
-        <p class="menu-description">
-          La infección tomó la ciudad.<br />Diez armas. Cinco zonas. Tú contra
-          lo que queda.
-        </p>
-        <div class="menu-cta">
-          <button id="start-button" class="primary">
-            <span>ENTRAR A LA ZONA</span><i class="arrow"></i></button
-          ><span class="cta-note"
-            >NO HAY REFUERZOS.<br />NO HAY VUELTA ATRÁS.</span
-          >
-        </div>
-        <div class="menu-controls">
-          <span><kbd>WASD</kbd> MOVER</span><span><kbd>RATÓN</kbd> APUNTAR</span
-          ><span><kbd>CLIC</kbd> DISPARAR</span
-          ><span><kbd>R</kbd> RECARGAR</span>
-        </div>
-        <p class="touch-hint">
-          Joystick para moverte · desliza para mirar · botones para disparar
-        </p>
-      </div>
-      <div class="specimen-label" aria-hidden="true">
-        <span class="eyebrow">ESPÉCIMEN // 001</span
-        ><strong>ELLOS YA<br />TE VIERON.</strong>
-        <div><i class="signal-dot red-dot"></i> INFECCIÓN CONFIRMADA</div>
-      </div>
-      <div class="campaign-strip">
-        <div class="campaign-label">
-          <span class="eyebrow">LA RUTA</span
-          ><strong>05 ZONAS.<br />05 JEFES.</strong>
-        </div>
-        <div id="menu-levels" class="menu-levels"></div>
-        <div class="record">
-          <span class="eyebrow">MEJOR INCURSIÓN</span
-          ><strong id="best-score">000000</strong>
-        </div>
-      </div>
-      <footer class="menu-footer">
-        <span>EL ÚLTIMO PROTOCOLO ES SOBREVIVIR.</span
-        ><span>3D REAL · ARSENAL COMPLETO · SIN DESCARGAS EXTERNAS</span>
-      </footer>
-    </main>
-    <section id="hud" class="hud" hidden aria-label="Estado de la partida">
-      <div class="objective">
-        <span class="eyebrow">PROTOCOLO CERO <i class="signal-dot"></i></span
-        ><strong id="level-title">EL DISTRITO</strong
-        ><span id="objective-text">ELIMINA LA HORDA</span>
-        <div class="objective-track"><i id="objective-fill"></i></div>
-      </div>
-      <div class="level-counter">
-        <span>SECTOR</span><strong id="level-number">01<span>/05</span></strong
-        ><span id="clock">00:00</span>
-      </div>
-      <div class="hud-actions">
-        <button id="game-pause" aria-label="Pausar">II</button
-        ><button id="game-arsenal" aria-label="Abrir arsenal">TAB</button>
-      </div>
-      <div id="boss-hud" class="boss-hud" hidden>
-        <span
-          ><b id="boss-name">EL CARNICERO</b
-          ><small>AMENAZA CLASE Ω</small></span
+        <button id="help-button" class="sidebar-help">
+          <span data-icon="bulb"></span>¿Cómo se juega?
+        </button>
+        <span class="sidebar-footer"
+          >Hecho para aprender con alegría <span>♡</span></span
         >
-        <div><i id="boss-fill"></i></div>
-        <small id="boss-health"></small>
       </div>
-      <div id="crosshair" class="crosshair">
-        <i></i><i></i><i></i><i></i><b></b>
-      </div>
-      <div id="scope" class="scope" hidden>
-        <div class="scope-lens"><i></i><b></b><span>LONGSHOT // 4×</span></div>
-      </div>
-      <div id="hit-marker" class="hit-marker"><i></i><i></i></div>
-      <div id="damage-direction" class="damage-direction"></div>
-      <div id="announcement" class="announcement">
-        <span id="announcement-kicker"></span
-        ><strong id="announcement-title"></strong>
-        <p id="announcement-copy"></p>
-      </div>
-      <div id="kill-message" class="kill-message"></div>
-      <div id="toast" class="toast" aria-live="polite"></div>
-      <div class="health-hud">
-        <div class="health-main">
-          <span class="health-icon">+</span><strong id="health">100</strong
-          ><span>INTEGRIDAD<br /><b id="health-status">ESTABLE</b></span>
-        </div>
-        <div class="health-track"><i id="health-fill"></i></div>
-        <div class="stamina-track"><i id="stamina-fill"></i></div>
-        <div class="equipment">
-          <span><kbd>G</kbd> <b id="grenades">3</b> GRANADAS</span
-          ><span><kbd>F</kbd> LINTERNA</span>
-        </div>
-      </div>
-      <div class="ammo-hud">
-        <span id="weapon-category">FUSIL DE ASALTO</span
-        ><strong id="weapon-name">AK-47 REVENANT</strong>
-        <div class="ammo-count">
-          <b id="magazine">30</b><span>/ <i id="reserve">240</i></span>
-        </div>
-        <div class="ammo-meta">
-          <span id="fire-mode">AUTO</span
-          ><span id="reload-text"><kbd>R</kbd> RECARGAR</span>
-        </div>
-        <div class="reload-track"><i id="reload-fill"></i></div>
-      </div>
-      <div id="weapon-belt" class="weapon-belt"></div>
-      <div class="hud-footer">
-        <span id="kills">0 BAJAS</span><span id="score">000000 PTS</span>
-      </div>
-      <div id="damage-numbers" class="damage-numbers"></div>
-      <div id="lock-hint" class="lock-hint" hidden>
-        MUEVE EL RATÓN PARA MIRAR · ESPACIO PARA SALTAR
-      </div>
-    </section>
-    <div id="mobile-controls" class="mobile-controls" hidden>
-      <div id="joystick" class="joystick"><i id="joystick-knob"></i></div>
-      <div id="look-pad" class="look-pad" aria-label="Desliza para mirar"></div>
-      <div class="touch-buttons">
-        <button id="touch-fire" aria-label="Disparar">
-          ◎<small>FUEGO</small></button
-        ><button id="touch-aim" aria-label="Apuntar">⊕</button
-        ><button id="touch-reload" aria-label="Recargar">R</button
-        ><button id="touch-weapon" aria-label="Cambiar arma">⇄</button
-        ><button id="touch-grenade" aria-label="Lanzar granada">G</button>
-      </div>
-    </div>
-    <section
-      id="arsenal-screen"
-      class="overlay arsenal-screen"
-      hidden
-      aria-labelledby="arsenal-title"
-    >
-      <div class="arsenal-panel">
-        <div class="panel-heading">
+    </aside>
+    <div class="app-shell">
+      <main id="main" tabindex="-1">
+        <header class="page-header">
           <div>
-            <span class="eyebrow orange"
-              >SUMINISTROS // 10 SISTEMAS DE ARMAMENTO</span
+            <span class="eyebrow" id="page-eyebrow"
+              >UN MUNDO POR DESCUBRIR</span
             >
-            <h2 id="arsenal-title">ELIGE TU <em>VENTAJA.</em></h2>
-            <p>
-              Diez armas. Diez formas de sobrevivir. Selecciona una para
-              equiparla.
+            <h1 id="page-title">
+              ¡Hola, peque explorador! <span class="hello-star">✦</span>
+            </h1>
+            <p id="page-description">
+              Hoy es un gran día para aprender algo nuevo.
             </p>
           </div>
-          <button
-            id="close-arsenal"
-            class="close-button"
-            aria-label="Cerrar arsenal"
+          <div class="header-tools">
+            <span class="star-counter" aria-label="Estrellas de aprendizaje"
+              ><span data-icon="star"></span><b id="total-stars">0</b
+              ><span>estrellas</span></span
+            ><button
+              id="sound-button"
+              class="round-button"
+              aria-label="Desactivar sonidos"
+              aria-pressed="true"
+            >
+              <span data-icon="sound"></span></button
+            ><span
+              class="profile-fox"
+              id="profile-fox"
+              aria-hidden="true"
+            ></span>
+          </div>
+        </header>
+        <section id="home-page" class="page">
+          <div class="hero">
+            <div class="hero-copy">
+              <span class="hero-tag"
+                ><span data-icon="star"></span> APRENDE JUGANDO</span
+              >
+              <h2>Multiplicar es una<br /><span>gran aventura.</span></h2>
+              <p>
+                Explora, juega y descubre las tablas del 1 al 12.<br
+                  class="desktop-break"
+                />
+                ¡Con un poquito de práctica, tú puedes!
+              </p>
+              <div class="hero-actions">
+                <button class="primary-button" id="hero-play">
+                  ¡Vamos a jugar! <span data-icon="arrow"></span></button
+                ><span class="hero-note"
+                  >Sin prisas.<br /><strong>A tu ritmo.</strong></span
+                >
+              </div>
+            </div>
+            <div class="hero-art">
+              <img
+                src="./src/multiplica/assets/forest.svg"
+                alt="Un zorrito explorador y su amigo conejo leen un libro entre árboles, flores y globos de multiplicación."
+                width="650"
+                height="450"
+              /><span class="floating-fact fact-one">2 × 3 = <b>6</b></span
+              ><span class="floating-fact fact-two"
+                ><span data-icon="star"></span> ¡Tú puedes!</span
+              >
+            </div>
+          </div>
+          <div class="ways" aria-label="Formas de aprender">
+            <button class="way-card" data-action="study">
+              <span class="way-icon purple" data-icon="book"></span
+              ><span
+                ><strong>Primero, descubre</strong
+                ><small>Entiende con dibujos</small></span
+              ><span data-icon="arrow"></span>
+            </button>
+            <button class="way-card" data-action="practice">
+              <span class="way-icon peach" data-icon="game"></span
+              ><span
+                ><strong>Después, practica</strong
+                ><small>Una tabla, muchos logros</small></span
+              ><span data-icon="arrow"></span>
+            </button>
+            <button class="way-card" data-action="adventure">
+              <span class="way-icon green" data-icon="rocket"></span
+              ><span
+                ><strong>¡Vive la aventura!</strong
+                ><small>10 retos para divertirte</small></span
+              ><span data-icon="arrow"></span>
+            </button>
+          </div>
+          <div class="section-heading">
+            <div>
+              <span class="eyebrow">UN PASITO A LA VEZ</span>
+              <h2>¿Qué tabla exploramos hoy?</h2>
+              <p>Elige un número y deja que empiece la magia.</p>
+            </div>
+            <span class="table-range">12 tablas · infinitas sonrisas</span>
+          </div>
+          <div
+            id="table-grid"
+            class="table-grid"
+            aria-label="Tablas de multiplicar del 1 al 12"
+          ></div>
+          <div class="home-tip">
+            <span data-icon="bulb"></span>
+            <p>
+              <strong>Un pequeño secreto:</strong> multiplicar es sumar la misma
+              cantidad varias veces. ¡Vamos a verlo juntos!
+            </p>
+            <button id="tip-study">
+              Ver con dibujos <span data-icon="arrow"></span>
+            </button>
+          </div>
+          <footer class="main-footer">
+            <span>Aprender también puede ser una aventura.</span
+            ><span>Sin anuncios · Sin cuentas · Con mucha imaginación</span>
+          </footer>
+        </section>
+        <section id="study-page" class="page" hidden>
+          <div
+            class="table-picker"
+            id="study-tables"
+            aria-label="Elegir tabla para aprender"
+          ></div>
+          <div class="study-layout">
+            <article class="study-list panel">
+              <span class="eyebrow">TU MAPA DE NÚMEROS</span>
+              <h2 id="study-title">La tabla del 2</h2>
+              <p>Elige una cuenta para verla con dibujos.</p>
+              <div id="study-facts" class="study-facts"></div>
+              <button id="study-practice" class="primary-button">
+                ¡Ahora a practicar! <span data-icon="arrow"></span>
+              </button>
+            </article>
+            <article class="study-visual panel">
+              <span class="learning-label"
+                ><span data-icon="bulb"></span> LO ENTENDEMOS JUNTOS</span
+              >
+              <h2 class="study-equation" id="study-equation"></h2>
+              <p id="study-explanation"></p>
+              <div id="study-drawing"></div>
+              <div class="learning-note">
+                <span data-icon="heart"></span>Multiplicar es sumar varias veces
+                la misma cantidad.
+              </div>
+            </article>
+          </div>
+        </section>
+        <section id="setup-page" class="page" hidden>
+          <div class="setup-layout">
+            <article class="panel setup-card">
+              <span class="eyebrow">PREPARA TU PEQUEÑA MISIÓN</span>
+              <h2>¡A jugar con los números!</h2>
+              <p>
+                Elige lo que quieres practicar. Las pistas te acompañan en cada
+                cuenta.
+              </p>
+              <label class="field-label" for="table-select"
+                >¿Qué tabla quieres explorar?</label
+              ><select id="table-select">
+                <option value="mixed">
+                  Todas las tablas · del 1 al 12
+                </option></select
+              ><span class="field-label">¿Cómo quieres jugar?</span>
+              <div class="mode-options">
+                <label
+                  ><input
+                    type="radio"
+                    name="mode"
+                    value="practice"
+                    checked
+                  /><span data-icon="flower"></span
+                  ><span
+                    ><strong>Pasito a pasito</strong
+                    ><small>12 cuentas, pasito a pasito</small></span
+                  ></label
+                ><label
+                  ><input type="radio" name="mode" value="adventure" /><span
+                    data-icon="rocket"
+                  ></span
+                  ><span
+                    ><strong>Una gran aventura</strong
+                    ><small>10 retos, en un orden sorpresa</small></span
+                  ></label
+                >
+              </div>
+              <button id="begin-play" class="primary-button">
+                ¡Empezar mi misión! <span data-icon="arrow"></span>
+              </button>
+            </article>
+            <aside class="setup-friend">
+              <div id="setup-fox"></div>
+              <span class="speech-bubble"
+                >No importa si te equivocas.<br /><strong
+                  >¡Aprendemos juntos!</strong
+                ></span
+              >
+              <p>
+                Sin cronómetro y sin perder vidas.<br />Solo tú, tus ideas y un
+                montón de estrellas.
+              </p>
+              <div class="decorative-stars" aria-hidden="true">
+                ✧ &nbsp; ✦ &nbsp; ✧
+              </div>
+            </aside>
+          </div>
+        </section>
+        <section id="play-page" class="page" hidden>
+          <div class="play-top">
+            <button id="leave-game" class="text-button">
+              <span data-icon="back"></span>Volver a las tablas</button
+            ><span id="round-label">Reto 1 de 10</span
+            ><span class="session-stars"
+              ><span data-icon="star"></span><b id="session-stars">0</b></span
+            >
+          </div>
+          <div
+            class="mission-progress"
+            role="progressbar"
+            aria-label="Avance de la misión"
+            aria-valuemin="0"
+            aria-valuemax="10"
+            aria-valuenow="0"
+            id="mission-progress"
           >
-            ×
-          </button>
-        </div>
-        <div id="arsenal-grid" class="arsenal-grid"></div>
-        <div class="arsenal-foot">
-          <span>TODAS DISPONIBLES DESDE EL INICIO</span
-          ><span>1–9 / 0 · RUEDA DEL RATÓN · TAB PARA CERRAR</span>
-        </div>
-      </div>
-    </section>
-    <section id="pause-screen" class="overlay" hidden>
-      <div class="compact-panel">
-        <span class="eyebrow orange">COMUNICACIÓN EN ESPERA</span>
-        <h2>NO BAJES<br /><em>LA GUARDIA.</em></h2>
-        <p>Respira. Recarga. Vuelve al combate.</p>
-        <button id="resume-button" class="primary">
-          <span>CONTINUAR</span><i class="arrow"></i></button
-        ><button id="quit-button" class="text-button">
-          ABANDONAR INCURSIÓN
-        </button>
-      </div>
-    </section>
-    <section id="level-screen" class="overlay" hidden>
-      <div class="level-panel">
-        <span class="eyebrow orange"
-          >AMENAZA NEUTRALIZADA // SECTOR DESPEJADO</span
+            <i></i>
+          </div>
+          <article class="quiz-card panel">
+            <div class="quiz-friend">
+              <span id="quiz-fox"></span>
+              <p id="friend-message">¡Vamos! Tú puedes con esta cuenta.</p>
+            </div>
+            <span class="eyebrow" id="quiz-table-label"
+              >EXPLORAMOS LA TABLA DEL 2</span
+            >
+            <h2 class="question-heading">¿Cuánto es?</h2>
+            <div class="quiz-equation" id="quiz-equation" aria-live="off"></div>
+            <p class="answer-instruction">
+              Elige la respuesta que creas correcta.
+            </p>
+            <div id="answer-options" class="answer-options"></div>
+            <div
+              id="answer-feedback"
+              class="answer-feedback"
+              role="status"
+              aria-live="polite"
+            ></div>
+            <div class="quiz-actions">
+              <button id="hint-button" class="secondary-button">
+                <span data-icon="bulb"></span>Ver con dibujos</button
+              ><button id="listen-button" class="text-button">
+                <span data-icon="sound"></span>Escuchar la cuenta</button
+              ><button id="next-question" class="primary-button" hidden>
+                ¡Siguiente reto! <span data-icon="arrow"></span>
+              </button>
+            </div>
+            <small class="keyboard-tip"
+              >También puedes elegir con las teclas 1, 2, 3 y 4.</small
+            >
+          </article>
+          <article id="hint-panel" class="hint-panel panel" hidden>
+            <div class="hint-title">
+              <span data-icon="bulb"></span>
+              <div>
+                <h3>Vamos a contarlo juntos</h3>
+                <p id="hint-description"></p>
+              </div>
+            </div>
+            <div id="hint-drawing"></div>
+          </article>
+        </section>
+        <section id="results-page" class="page" hidden>
+          <article class="result-card panel">
+            <div class="result-medal">
+              <span data-icon="trophy"></span><span class="medal-star">✦</span>
+            </div>
+            <span class="eyebrow">UNA AVENTURA PARA RECORDAR</span>
+            <h2>¡Lo hiciste, explorador!</h2>
+            <p id="result-copy"></p>
+            <div class="result-stats">
+              <div>
+                <span data-icon="star"></span
+                ><strong id="result-solved">10</strong
+                ><small>Cuentas resueltas</small>
+              </div>
+              <div>
+                <span data-icon="sprout"></span
+                ><strong id="result-new">10</strong
+                ><small>Nuevos aprendizajes</small>
+              </div>
+            </div>
+            <p class="result-message">
+              Cada intento te ayuda a crecer. ¡Estamos orgullosos de tus
+              pasitos!
+            </p>
+            <div id="new-badges" class="new-badges"></div>
+            <div class="result-actions">
+              <button id="play-again" class="primary-button">
+                ¡Otra aventura! <span data-icon="arrow"></span></button
+              ><button id="result-home" class="secondary-button">
+                Explorar otras tablas
+              </button>
+            </div>
+          </article>
+        </section>
+        <section id="rewards-page" class="page" hidden>
+          <div class="rewards-banner">
+            <span data-icon="trophy"></span>
+            <div>
+              <h2>Pequeños pasos, grandes logros.</h2>
+              <p>
+                Las estrellas cuentan las multiplicaciones distintas que has
+                aprendido.
+              </p>
+            </div>
+            <span class="rewards-total"><b id="rewards-total">0</b> / 144</span>
+          </div>
+          <div class="section-heading">
+            <div>
+              <h2>Tu colección de medallas</h2>
+              <p>No hay prisa. Cada descubrimiento tiene su premio.</p>
+            </div>
+          </div>
+          <div id="badges-grid" class="badges-grid"></div>
+          <article class="progress-panel panel">
+            <h2>Así crece tu jardín</h2>
+            <div id="table-progress-list"></div>
+          </article>
+          <div class="save-note">
+            <span data-icon="heart"></span>
+            <p>
+              Tu progreso se guarda en este navegador. No pedimos nombres ni
+              creamos cuentas.
+            </p>
+            <button id="reset-progress" class="text-button">
+              Empezar de nuevo
+            </button>
+          </div>
+        </section>
+        <noscript
+          ><div class="panel">
+            Activa JavaScript para jugar con las tablas de multiplicar.
+          </div></noscript
         >
-        <h2 id="clear-title">DISTRITO<br /><em>LIBERADO.</em></h2>
-        <p id="clear-copy"></p>
-        <div class="transition-stats">
-          <div>
-            <span>BAJAS TOTALES</span><strong id="clear-kills">13</strong>
-          </div>
-          <div>
-            <span>PUNTUACIÓN</span><strong id="clear-score">000000</strong>
-          </div>
-          <div>
-            <span>SIGUIENTE SECTOR</span
-            ><strong id="next-name">MUELLE 13</strong>
-          </div>
-        </div>
-        <div class="supply-notice">
-          <span>+</span> MUNICIÓN REABASTECIDA · +45 INTEGRIDAD · 3 GRANADAS
-        </div>
-        <button id="next-button" class="primary">
-          <span>AVANZAR AL SIGUIENTE SECTOR</span><i class="arrow"></i></button
-        ><button id="intermission-arsenal" class="text-button">
-          REVISAR ARSENAL
-        </button>
-      </div>
-    </section>
-    <section id="end-screen" class="overlay" hidden>
-      <div class="end-panel">
-        <span id="end-kicker" class="eyebrow orange"
-          >PROTOCOLO FALLIDO // SEÑAL PERDIDA</span
-        >
-        <h2 id="end-title">NO ERAS<br /><em>INMORTAL.</em></h2>
-        <p id="end-description">
-          La zona sigue ahí. Tu próxima incursión también.
-        </p>
-        <div id="new-record" class="new-record" hidden>
-          NUEVO RÉCORD PERSONAL
-        </div>
-        <div class="end-stats">
-          <div>
-            <span>PUNTUACIÓN</span><strong id="end-score">000000</strong>
-          </div>
-          <div><span>NIVEL</span><strong id="end-level">1 / 5</strong></div>
-          <div><span>BAJAS</span><strong id="end-kills">0</strong></div>
-          <div>
-            <span>A LA CABEZA</span><strong id="end-headshots">0</strong>
-          </div>
-          <div><span>TIEMPO</span><strong id="end-time">00:00</strong></div>
-        </div>
-        <button id="retry-button" class="primary">
-          <span>VOLVER A INTENTAR</span><i class="arrow"></i></button
-        ><button id="menu-button" class="text-button">VOLVER A LA BASE</button>
-      </div>
-    </section>
-    <dialog id="help-dialog">
-      <button id="close-help" class="close-button" aria-label="Cerrar ayuda">
-        ×</button
-      ><span class="eyebrow orange">MANUAL DEL SUPERVIVIENTE</span>
-      <h2>NO MIRES<br /><em>ATRÁS.</em></h2>
-      <div class="help-row">
-        <kbd>WASD</kbd>
-        <p>
-          Movimiento. Espacio para saltar, Shift para correr y C para agacharte.
-          Los enemigos rodean los obstáculos.
-        </p>
-      </div>
-      <div class="help-row">
-        <kbd>RATÓN / CLIC</kbd>
-        <p>
-          Mueve el ratón para mirar, sin mantener clic. Clic izquierdo para
-          disparar y clic derecho para apuntar. El francotirador tiene mira
-          telescópica. Los disparos a la cabeza causan más daño.
-        </p>
-      </div>
-      <div class="help-row">
-        <kbd>R / G / F</kbd>
-        <p>
-          Recargar / lanzar granada / linterna. Los cohetes cercanos también
-          pueden dañarte.
-        </p>
-      </div>
-      <div class="help-row">
-        <kbd>1–9 / 0 / TAB</kbd>
-        <p>
-          Diez armas disponibles. Cambia con números o rueda del ratón, o
-          inspecciónalas en el arsenal.
-        </p>
-      </div>
-      <div class="help-row">
-        <kbd>ESC / P</kbd>
-        <p>
-          Pausa. Mata a toda la horda para que aparezca el jefe. Derríbalo para
-          avanzar. Hay cinco niveles.
-        </p>
-      </div>
-      <p class="help-note">
-        En móvil: joystick izquierdo, desliza a la derecha para mirar y usa los
-        botones de acción. En escritorio, la cámara sigue el ratón durante el
-        combate, incluso si el navegador no permite capturar el cursor.
+      </main>
+    </div>
+    <dialog id="help-dialog" class="dialog">
+      <button
+        class="dialog-close round-button"
+        data-close="help-dialog"
+        aria-label="Cerrar ayuda"
+      >
+        <span data-icon="close"></span></button
+      ><span class="dialog-icon" data-icon="book"></span>
+      <h2>Aprendemos jugando.</h2>
+      <p>
+        Explora las tablas del 1 al 12 y encuentra tu propia manera de aprender.
       </p>
-      <button id="got-it" class="primary">
-        <span>ENTENDIDO</span><i class="arrow"></i>
+      <ol class="help-steps">
+        <li>
+          <strong>Descubre con dibujos.</strong> Mira grupos de estrellas y
+          entiende qué significa multiplicar.
+        </li>
+        <li>
+          <strong>Elige y practica.</strong> Selecciona una de las cuatro
+          respuestas. Si te equivocas, recibe una pista y vuelve a intentarlo.
+        </li>
+        <li>
+          <strong>Celebra tus pasitos.</strong> Cada multiplicación nueva añade
+          una estrella. Completa misiones y consigue medallas.
+        </li>
+      </ol>
+      <p class="dialog-note">
+        No hay cronómetro. Puedes usar todas las pistas que necesites. En el
+        teclado: 1–4 para responder, H para ver una pista y Enter para
+        continuar.
+      </p>
+      <button class="primary-button" data-close="help-dialog">
+        ¡Entendido! <span data-icon="check"></span>
       </button>
     </dialog>
-    <script type="module" src="./src/main.js"></script>
+    <dialog id="reset-dialog" class="dialog">
+      <h2>¿Empezamos un nuevo jardín?</h2>
+      <p>Se borrarán las estrellas y medallas guardadas en este navegador.</p>
+      <div class="dialog-actions">
+        <button class="secondary-button" data-close="reset-dialog">
+          Seguir con mi progreso</button
+        ><button id="confirm-reset" class="primary-button">
+          Sí, empezar de nuevo
+        </button>
+      </div>
+    </dialog>
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    <div id="confetti" class="confetti" aria-hidden="true"></div>
+    <script type="module" src="./src/multiplica/main.js"></script>
   </body>
 </html>

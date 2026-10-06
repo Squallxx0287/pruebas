@@ -1,12 +1,12 @@
 {
-  "name": "deadzone-protocol-zero",
+  "name": "multiplicaclub",
   "version": "1.0.0",
   "private": true,
   "type": "module",
   "scripts": {
     "dev": "node server.js",
     "test": "node --test --test-isolation=none",
-    "check": "node --check server.js && node --check src/survival.js && node --check src/graphics.js && node --check src/main.js"
+    "check": "node --check server.js && node --check src/survival.js && node --check src/graphics.js && node --check src/main.js && node --check src/multiplica/model.js && node --check src/multiplica/art.js && node --check src/multiplica/main.js"
   },
   "engines": {
     "node": ">=24"

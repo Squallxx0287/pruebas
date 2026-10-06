@@ -1,0 +1,14 @@
+[
+  {
+    "name": "@fontsource/nunito",
+    "version": "5.3.0",
+    "registry": "https://registry.npmjs.org",
+    "archiveIntegrity": "sha512-vw9TaTQJ/zpEpKrsODuPmOvaVjXgdda6B+xXA4YqjrdeJ62MLgVoDerdRXFQHyBnSCt2yQ2nHKCHPP/Pv7Xq4Q=="
+  },
+  {
+    "name": "@fontsource/fredoka",
+    "version": "5.3.0",
+    "registry": "https://registry.npmjs.org",
+    "archiveIntegrity": "sha512-s2IhjQ50wDnKkkaKmjhtL0rxQg6ITsVusiipM3m7zUwVZZbbCKsscNDkngwp28xVzfIt7neWrkgU1qKqyTycQg=="
+  }
+]

@@ -3,47 +3,47 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#071412">
-  <title>Sala Ocho — Billar de precisión</title>
+  <meta name="theme-color" content="#09090e">
+  <meta name="description" content="NEON RIFT: seis oleadas, un núcleo y ninguna salida. Un arcade de supervivencia con dash, mejoras y combate de neón.">
+  <title>NEON RIFT — Rompe el vacío</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath fill='%23d5ff5f' d='M32 2 60 32 32 62 4 32z'/%3E%3Cpath fill='%2309090e' d='m22 20 22 12-22 12 5-12z'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="./src/styles.css">
 </head>
 <body>
-  <div class="ambient ambient-one"></div><div class="ambient ambient-two"></div>
-  <main class="shell">
-    <header class="masthead">
-      <div class="brand"><div class="brand-mark">8</div><div><span class="eyebrow">BILLAR DE PRECISIÓN</span><h1>SALA <em>OCHO</em></h1></div></div>
-      <div class="header-actions"><button id="help-button" class="icon-button" aria-label="Cómo jugar" title="Cómo jugar">?</button><button id="sound-button" class="icon-button" aria-label="Activar o desactivar sonido" title="Sonido">♪</button><button id="new-button" class="secondary-button">↻ <span>Nueva partida</span></button></div>
-    </header>
-
-    <section class="game-layout" aria-label="Juego de billar">
-      <div class="arena-panel">
-        <div class="scoreboard">
-          <div class="player active" id="player-0"><span class="player-tag">JUGADOR 1</span><strong>Jugador 1</strong><span class="group" id="group-0">Mesa abierta</span><div class="remaining" id="remaining-0"></div></div>
-          <div class="center-score"><span>PARTIDA</span><strong id="turn-counter">01</strong><small id="turn-caption">TURNO</small></div>
-          <div class="player" id="player-1"><span class="player-tag">JUGADOR 2</span><strong id="player-1-name">Jugador 2</strong><span class="group" id="group-1">Mesa abierta</span><div class="remaining" id="remaining-1"></div></div>
-        </div>
-        <div class="table-wrap"><canvas id="table" width="1200" height="650" aria-label="Mesa de billar interactiva"></canvas></div>
-        <div class="table-footer"><div class="shot-status"><span class="live-dot"></span><span id="status" role="status">Apunta con el cursor y dispara</span></div><span class="table-label">SALA OCHO · MESA 01</span></div>
-      </div>
-
-      <aside class="control-panel">
-        <div class="mode-head"><span class="eyebrow">CONFIGURACIÓN</span><h2>Tu próxima jugada</h2></div>
-        <div class="mode-switch" role="group" aria-label="Modo de juego"><button id="mode-duel" class="selected" aria-pressed="true">2 jugadores</button><button id="mode-practice" aria-pressed="false">Práctica</button></div>
-        <div class="divider"></div>
-        <div class="control-heading"><span>01</span><div><strong>Potencia</strong><small>Desliza para afinar el golpe</small></div><b id="power-value">48%</b></div>
-        <input id="power" class="power-slider" aria-label="Potencia del tiro" type="range" min="5" max="100" value="48">
-        <div class="range-labels"><span>SUAVE</span><span>FUERTE</span></div>
-        <div class="divider"></div>
-        <div class="control-heading"><span>02</span><div><strong>Efecto</strong><small>Mueve el punto de impacto</small></div></div>
-        <div class="spin-control"><div class="spin-disc" id="spin-disc" role="group" aria-label="Efecto de la bola blanca"><div class="spin-cross spin-h"></div><div class="spin-cross spin-v"></div><div class="spin-dot" id="spin-dot"></div></div><div class="spin-legend"><span>↑ Seguimiento</span><span>↓ Retroceso</span><span>← → Lateral</span><button id="reset-spin">Centrar efecto</button></div></div>
-        <div class="divider"></div>
-        <button id="shoot" class="shoot-button"><span class="shoot-icon">✦</span><span>DISPARAR</span><span class="key-hint">ESPACIO</span></button>
-        <p class="control-tip">Mueve el cursor o toca la mesa para apuntar. Usa <kbd>←</kbd> <kbd>→</kbd> para ajustar el ángulo.</p>
-      </aside>
-    </section>
-    <footer class="page-footer"><span>LA PRECISIÓN DECIDE LA PARTIDA</span><span>Hecho para jugar en cualquier pantalla</span></footer>
+  <canvas id="arena" tabindex="0" aria-label="Arena de combate de NEON RIFT. WASD para moverte, ratón para apuntar, clic para disparar, espacio para dash."></canvas>
+  <div class="grain" aria-hidden="true"></div><div class="vignette" aria-hidden="true"></div>
+  <header class="topbar">
+    <a class="wordmark" href="./" aria-label="NEON RIFT, inicio"><span class="brand-icon">◈</span> NEON<span>RIFT</span><sup>®</sup></a>
+    <div class="topbar-center"><span class="status-led"></span><span id="connection-label">SISTEMA EN LÍNEA</span><span class="version">/ V.01</span></div>
+    <div class="topbar-actions"><button id="sound-button" class="small-button" aria-label="Desactivar sonido" title="Activar o desactivar sonido">SONIDO <span id="sound-label">ON</span></button><button id="pause-button" class="small-button" hidden>PAUSA <kbd>ESC</kbd></button><button id="help-button" class="icon-button" aria-label="Ver controles">?</button></div>
+  </header>
+  <main id="menu" class="menu">
+    <div class="hero-copy">
+      <div class="eyebrow"><span class="tiny-cross">✳</span> ARCADE DE SUPERVIVENCIA <span class="pill">SOLO / OFFLINE</span></div>
+      <h1>ROMPE<br>EL <span class="outline-text">VACÍO</span><span class="title-dot">.</span></h1>
+      <p class="hero-description">El último piloto. Un enjambre sin fin.<br>Convierte el caos en tu mejor jugada.</p>
+      <div class="launch-row"><button id="start-button" class="primary-button"><span>INICIAR INCURSIÓN</span><span class="button-arrow">↗</span></button><span class="launch-hint">SEIS OLEADAS.<br>UNA OPORTUNIDAD.</span></div>
+      <div class="hero-controls"><span><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> MOVER</span><span><svg viewBox="0 0 16 20" aria-hidden="true"><rect x="2" y="1" width="12" height="18" rx="6"/><path d="M8 1v7M2 8h12"/></svg> APUNTAR + DISPARAR</span><span><kbd>ESPACIO</kbd> DASH</span></div>
+      <p class="mobile-instructions">Arrastra para moverte · disparo automático · botones para dash y pulso</p>
+    </div>
+    <aside class="hero-visual-label" aria-hidden="true"><div class="target-label"><span class="tiny-cross">+</span> PILOTO NR—01 <span class="tiny-cross">+</span></div><div class="visual-spec">PROPULSOR DE IONES<br>INTEGRIDAD 100%<br><span>LISTO PARA EL SALTO</span></div></aside>
+    <div class="menu-bottom"><div class="mission-card"><span class="card-number">01 /</span><div><span class="eyebrow">LA MISIÓN</span><p>Sobrevive. Evoluciona.<br>Destruye el Núcleo.</p></div></div><div class="mission-card"><span class="card-number">02 /</span><div><span class="eyebrow">TU VENTAJA</span><p>El dash te vuelve invulnerable.<br>Úsalo para atravesar el peligro.</p></div></div><div class="record-card"><span class="eyebrow">RÉCORD PERSONAL</span><strong id="menu-best">000000</strong><span class="record-caption">SUPÉRALO.</span></div></div>
+    <footer class="menu-footer"><span>HECHO DE LUZ. DISEÑADO PARA EL CAOS.</span><span>NO DESCARGAS. NO EXCUSAS. <span class="lime">↗</span></span></footer>
   </main>
-  <dialog id="help-dialog"><div class="dialog-inner"><button id="close-help" class="dialog-close" aria-label="Cerrar">×</button><span class="eyebrow">MANUAL DE JUEGO</span><h2>Cada tiro cuenta.</h2><p>Apunta moviendo el cursor sobre la mesa y dispara con el botón o la barra espaciadora. En pantalla táctil, toca la dirección deseada. Ajusta la potencia y mueve el punto rojo de la bola blanca para dar seguimiento, retroceso o efecto lateral.</p><p>En <strong>2 jugadores</strong>, emboca una lisa o rayada para elegir grupo. Debes tocar primero una bola de tu grupo y después embocar o alcanzar una banda. Emboca la 8 tras limpiar tu grupo para ganar. Tras una falta, el rival coloca la blanca con un toque.</p><p>En <strong>Práctica</strong>, experimenta libremente; la blanca se recoloca tras una falta.</p><button id="got-it" class="shoot-button">¡A jugar!</button></div></dialog>
+  <section id="hud" class="hud" hidden aria-label="Estado de la partida">
+    <div class="hud-left"><div class="hud-caption">PILOTO NR—01 <span id="health-number">100</span></div><div class="health-track"><div id="health-fill"></div></div><div class="ability-row"><div class="ability"><kbd>ESPACIO</kbd><span>DASH</span><div class="mini-track"><i id="dash-fill"></i></div></div><div class="ability pulse-ability"><kbd>E</kbd><span>COLAPSO</span><div class="mini-track"><i id="pulse-fill"></i></div></div></div><div id="loadout" class="loadout"></div></div>
+    <div class="hud-center"><div class="hud-caption">OLEADA <span id="wave-number">01 / 06</span></div><div class="wave-track"><div id="wave-fill"></div></div><div id="wave-objective" class="wave-objective">ELIMINA EL ENJAMBRE</div></div>
+    <div class="hud-right"><span class="hud-caption">PUNTUACIÓN</span><strong id="score">000000</strong><div class="score-details"><span id="run-time">00:00</span><span id="combo">×1</span></div></div>
+    <div id="boss-hud" class="boss-hud" hidden><span>EL NÚCLEO <b>ENTIDAD HOSTIL // Ω</b></span><div class="boss-track"><i id="boss-fill"></i></div></div>
+    <div class="hud-bottom"><span id="kills-label">0 HOSTILES ELIMINADOS</span><span id="combat-hint">MANTÉN CLIC PARA DISPARAR · ESPACIO PARA EVADIR · E PARA COLAPSO</span><canvas id="minimap" width="180" height="120" aria-label="Radar de enemigos"></canvas></div>
+    <div id="toast" class="toast" aria-live="polite"></div>
+    <div id="wave-announcement" class="wave-announcement"><span id="announcement-kicker"></span><strong id="announcement-title"></strong><span id="announcement-subtitle"></span></div>
+  </section>
+  <div id="touch-controls" class="touch-controls" hidden><div id="joystick" class="joystick"><div id="joystick-knob"></div><span>MOVER</span></div><div class="touch-actions"><button id="touch-pulse" aria-label="Activar colapso">◉<small>PULSO</small></button><button id="touch-dash" aria-label="Usar dash">↯<small>DASH</small></button></div></div>
+  <section id="upgrade-screen" class="overlay" hidden aria-labelledby="upgrade-title"><div class="upgrade-panel"><span class="eyebrow lime">SECTOR DESPEJADO // EVOLUCIÓN DISPONIBLE</span><h2 id="upgrade-title">ADÁPTATE AL <em>CAOS.</em></h2><p>Elige una mejora. Tu siguiente oleada no tendrá piedad.</p><div id="upgrade-cards" class="upgrade-cards"></div><span class="overlay-footnote">LAS MEJORAS SE ACUMULAN DURANTE LA INCURSIÓN</span></div></section>
+  <section id="pause-screen" class="overlay" hidden aria-labelledby="pause-title"><div class="compact-panel"><span class="eyebrow lime">SEÑAL EN ESPERA</span><h2 id="pause-title">TOMA<br><em>AIRE.</em></h2><p>El vacío puede esperar un momento.</p><button id="resume-button" class="primary-button"><span>CONTINUAR</span><span>↗</span></button><button id="quit-button" class="text-button">ABANDONAR INCURSIÓN</button></div></section>
+  <section id="end-screen" class="overlay" hidden aria-labelledby="end-title"><div class="end-panel"><span id="end-kicker" class="eyebrow">SEÑAL PERDIDA // NR—01</span><h2 id="end-title">EL VACÍO<br><em>RECLAMA.</em></h2><p id="end-description">Una incursión más. Una razón para volver.</p><div id="new-record" class="new-record" hidden>↗ NUEVO RÉCORD PERSONAL</div><div class="end-stats"><div><span>PUNTUACIÓN</span><strong id="end-score">0</strong></div><div><span>OLEADA</span><strong id="end-wave">1</strong></div><div><span>ELIMINADOS</span><strong id="end-kills">0</strong></div><div><span>TIEMPO</span><strong id="end-time">0:00</strong></div></div><button id="retry-button" class="primary-button"><span>OTRA INCURSIÓN</span><span>↗</span></button><button id="menu-button" class="text-button">VOLVER A LA BASE</button></div></section>
+  <dialog id="help-dialog"><div class="help-panel"><button id="close-help" class="dialog-close" aria-label="Cerrar ayuda">×</button><span class="eyebrow lime">MANUAL DEL PILOTO</span><h2>DOMINA<br><em>EL RIFT.</em></h2><div class="help-row"><kbd>WASD / ↑↓←→</kbd><p>Muévete por la arena. El cursor marca la dirección de tus disparos.</p></div><div class="help-row"><kbd>CLIC / F</kbd><p>Mantén pulsado para disparar. En móvil, la nave apunta y dispara al enemigo más cercano.</p></div><div class="help-row"><kbd>ESPACIO / SHIFT</kbd><p>Dash: atraviesa enemigos y proyectiles sin recibir daño. Recarga en 1,4 segundos.</p></div><div class="help-row"><kbd>E</kbd><p>Colapso: recoge fragmentos hasta cargar el pulso. Borra los proyectiles cercanos y daña a todo lo que te rodea.</p></div><div class="help-row"><kbd>ESC / P</kbd><p>Pausa. Elimina cada oleada, elige mejoras y derrota al Núcleo en el sector 6.</p></div><button id="got-it" class="primary-button"><span>ENTENDIDO</span><span>↗</span></button></div></dialog>
   <script type="module" src="./src/main.js"></script>
 </body>
 </html>

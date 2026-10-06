@@ -84,6 +84,25 @@
             </p>
           </div>
           <div class="header-tools">
+            <button
+              id="voice-button"
+              class="voice-launcher"
+              aria-label="Abrir asistente de voz Luna"
+              aria-haspopup="dialog"
+            >
+              <span
+                id="voice-avatar"
+                class="voice-avatar"
+                aria-hidden="true"
+              ></span>
+              <span class="voice-launcher-label"
+                ><strong>Luna</strong
+                ><small id="voice-status">Tu guía de voz</small></span
+              >
+              <span class="voice-indicator" aria-hidden="true"
+                ><i></i><i></i><i></i
+              ></span>
+            </button>
             <span class="star-counter" aria-label="Estrellas de aprendizaje"
               ><span data-icon="star"></span><b id="total-stars">0</b
               ><span>estrellas</span></span
@@ -447,6 +466,62 @@
       <button class="primary-button" data-close="help-dialog">
         ¡Entendido! <span data-icon="check"></span>
       </button>
+    </dialog>
+    <dialog id="voice-dialog" class="dialog voice-dialog">
+      <button
+        class="dialog-close round-button"
+        data-close="voice-dialog"
+        aria-label="Cerrar asistente de voz"
+      >
+        <span data-icon="close"></span>
+      </button>
+      <div id="luna-portrait" class="luna-portrait" aria-hidden="true"></div>
+      <span class="eyebrow">TU AMIGA DE LOS NÚMEROS</span>
+      <h2>¡Hola! Soy Luna.</h2>
+      <p>
+        Te leo los retos, descubrimos las pistas y celebramos tus pasitos.
+        ¡Aprenderemos juntos!
+      </p>
+      <label class="voice-toggle"
+        ><input type="checkbox" id="voice-enabled" checked /><span
+          ><strong>Luna me acompaña</strong
+          ><small>Hablar durante las cuentas y las pistas</small></span
+        ></label
+      >
+      <label class="field-label" for="voice-select">Elige mi voz</label>
+      <select id="voice-select">
+        <option value="">Automática · español</option>
+      </select>
+      <p id="voice-choice-note" class="voice-choice-note">
+        Busco una voz femenina y suave en español. Puedes probar las voces y
+        elegir tu favorita.
+      </p>
+      <label class="field-label voice-rate-label" for="voice-rate"
+        >Velocidad
+        <output id="voice-rate-label" for="voice-rate">Natural</output></label
+      >
+      <input
+        id="voice-rate"
+        class="voice-rate"
+        type="range"
+        min="0.75"
+        max="1.15"
+        step="0.05"
+        value="0.9"
+      />
+      <div class="voice-preview">
+        <span class="voice-preview-icon" data-icon="sound"></span>
+        <p id="voice-caption">¡Estoy lista para aprender contigo!</p>
+      </div>
+      <div class="voice-dialog-actions">
+        <button id="voice-test" class="primary-button">
+          <span data-icon="sound"></span>Escuchar a Luna</button
+        ><button id="voice-stop" class="secondary-button">Detener voz</button>
+      </div>
+      <small class="voice-device-note"
+        >Las voces disponibles dependen de tu dispositivo. Puedes cambiar de voz
+        cuando quieras.</small
+      >
     </dialog>
     <dialog id="reset-dialog" class="dialog">
       <h2>¿Empezamos un nuevo jardín?</h2>

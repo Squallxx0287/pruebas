@@ -7,7 +7,7 @@ Juego infantil para aprender las tablas de multiplicar del **1 al 12**. Ilustrac
 - **Aventura:** 10 ejercicios distintos en orden sorpresa, de una tabla o mezclando las doce. Da prioridad a las cuentas todavía no aprendidas.
 - **Mis logros:** cada cuenta distinta resuelta añade una estrella. Hay tres hitos por tabla y seis medallas. Equivocarse muestra una pista y permite seguir intentando; usar pistas no reduce la recompensa.
 
-El progreso se guarda en este navegador mediante `localStorage`, sin datos personales. Puede borrarse desde Mis logros, con confirmación. Si el almacenamiento no está disponible se puede seguir jugando. La lectura opcional de cuentas usa la síntesis de voz del navegador cuando existe; su disponibilidad depende del dispositivo.
+El progreso se guarda en este navegador mediante `localStorage`, sin datos personales. Puede borrarse desde Mis logros, con confirmación. Si el almacenamiento no está disponible se puede seguir jugando. La asistente **Luna** acompaña los retos, explica pistas, anima después de los errores y celebra los aciertos. Su voz utiliza la síntesis de voz del navegador: prefiere voces femeninas conocidas en español (por ejemplo, Mónica, Paulina, Elvira o Dalia), y permite seleccionar otra voz, ajustar la velocidad, escuchar una prueba, detenerla o desactivar la guía automática. No solicita micrófono. Las voces disponibles y su sonido dependen del dispositivo; no se incluye ni se clona la voz de Alexa o Siri. Los efectos musicales y la guía de voz tienen controles independientes.
 
 ## Ejecutar y verificar
 
@@ -41,6 +41,7 @@ La documentación del juego anterior está en [DEADZONE.md](./DEADZONE.md).
 - `src/multiplica/model.js`: preguntas, sesiones y progreso.
 - `src/multiplica/art.js`: iconos, zorrito y dibujos educativos.
 - `src/multiplica/main.js`: interfaz, navegación, controles, audio y persistencia.
+- `src/multiplica/voice.js`: elección de voz española, narración de Luna y control de reproducción.
 - `src/multiplica/styles.css`: diseño adaptable.
 - `src/multiplica/assets/forest.svg`: ilustración original.
 - `test/multiplica.test.js`: pruebas del aprendizaje y la progresión.

@@ -417,8 +417,8 @@
           <div class="save-note">
             <span data-icon="heart"></span>
             <p>
-              Tu progreso se guarda en este navegador. No pedimos nombres ni
-              creamos cuentas.
+              Tu progreso se guarda en este navegador. No necesitas crear una
+              cuenta.
             </p>
             <button id="reset-progress" class="text-button">
               Empezar de nuevo
@@ -522,6 +522,58 @@
         >Las voces disponibles dependen de tu dispositivo. Puedes cambiar de voz
         cuando quieras.</small
       >
+    </dialog>
+    <dialog
+      id="player-dialog"
+      class="dialog player-dialog"
+      aria-labelledby="player-dialog-title"
+    >
+      <button
+        class="dialog-close round-button"
+        data-close="player-dialog"
+        aria-label="Volver sin empezar"
+      >
+        <span data-icon="close"></span>
+      </button>
+      <div id="player-portrait" class="luna-portrait" aria-hidden="true"></div>
+      <span class="eyebrow">TU AVENTURA EMPIEZA AQUÍ</span>
+      <h2 id="player-dialog-title">¿Quién va a jugar?</h2>
+      <p>
+        Dime tu nombre o apodo. ¡Así puedo acompañarte y celebrar tus logros
+        contigo!
+      </p>
+      <form id="player-form" novalidate>
+        <label class="field-label" for="player-name">Tu nombre o apodo</label>
+        <input
+          id="player-name"
+          name="player-name"
+          class="player-name-input"
+          type="text"
+          placeholder="Por ejemplo, Sofía"
+          maxlength="24"
+          autocomplete="off"
+          autocapitalize="words"
+          spellcheck="false"
+          required
+          aria-describedby="player-name-note player-name-error"
+        />
+        <p id="player-name-note" class="player-name-note">
+          Solo lo usamos durante esta visita para que Luna te llame por tu
+          nombre.
+        </p>
+        <p
+          id="player-name-error"
+          class="player-name-error"
+          role="status"
+          aria-live="polite"
+        ></p>
+        <button id="confirm-player" type="submit" class="primary-button">
+          ¡Vamos, Luna! <span data-icon="arrow"></span>
+        </button>
+        <button type="button" class="text-button" data-close="player-dialog">
+          Volver
+        </button>
+      </form>
     </dialog>
     <dialog id="reset-dialog" class="dialog">
       <h2>¿Empezamos un nuevo jardín?</h2>

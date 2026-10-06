@@ -167,6 +167,7 @@ test("speech failure is reported once and a manual retry can recover without cha
 test("questions read the factors without giving away the answer and hints explain equal groups", () => {
   const q = { a: 7, b: 8, answer: 56 };
   assert.match(questionSpeech(q), /7 por 8/);
+  assert.match(questionSpeech(q, "Sofía"), /^Sofía, 7 por 8/);
   assert.ok(!questionSpeech(q).includes("56"));
   assert.match(hintSpeech(q), /7 grupos con 8 estrellas/);
   assert.ok(!hintSpeech(q).includes("56"));

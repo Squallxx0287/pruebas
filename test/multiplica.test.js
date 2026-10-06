@@ -9,6 +9,7 @@ import {
   addFact,
   tableProgress,
   badgesFor,
+  validatePlayerName,
 } from "../src/multiplica/model.js";
 import { groupDrawing } from "../src/multiplica/art.js";
 function seeded(seed = 29) {
@@ -18,6 +19,34 @@ function seeded(seed = 29) {
   };
 }
 
+test("player names accept accents, compound names and nicknames while normalizing whitespace", () => {
+  for (const name of [
+    "Sofía",
+    "Ana María",
+    "María-José",
+    "O’Connor",
+    "PequeLeo7",
+  ])
+    assert.deepEqual(validatePlayerName(`  ${name}  `), { name, error: "" });
+  assert.equal(validatePlayerName("Ana   María").name, "Ana María");
+  assert.equal(validatePlayerName("Jose\u0301").name, "José");
+});
+test("a player name is required and rejects markup, control characters and overly long values", () => {
+  for (const value of [
+    null,
+    "",
+    "   ",
+    "123",
+    "<img src=x onerror=alert(1)>",
+    "Ana\u202e",
+    "S".repeat(25),
+  ]) {
+    const result = validatePlayerName(value);
+    assert.equal(result.name, "");
+    assert.ok(result.error);
+  }
+  assert.equal(validatePlayerName("A".repeat(24)).error, "");
+});
 test("every one of the 144 facts has the correct product and four different, positive choices", () => {
   assert.deepEqual(
     TABLES.map((t) => t.number),

@@ -55,8 +55,8 @@ export function sanitizeVoicePreferences(value) {
       : 0.9,
   };
 }
-export const questionSpeech = ({ a, b }) =>
-  `${a} por ${b}. ¿Cuánto es? Elige una respuesta. Si lo necesitas, puedes pedir una pista.`;
+export const questionSpeech = ({ a, b }, name = "") =>
+  `${name ? `${name}, ` : ""}${a} por ${b}. ¿Cuánto es? Elige una respuesta. Si lo necesitas, puedes pedir una pista.`;
 export const hintSpeech = ({ a, b }) =>
   `Imagina ${a} ${a === 1 ? "grupo" : "grupos"} con ${b} ${b === 1 ? "estrella" : "estrellas"} en cada grupo. Para saber cuántas hay en total, suma ${b}, ${a} ${a === 1 ? "vez" : "veces"}. Mira los dibujos y cuenta a tu ritmo.`;
 

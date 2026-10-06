@@ -6,6 +6,7 @@ import {
   addFact,
   tableProgress,
   badgesFor,
+  validatePlayerName,
 } from "./model.js";
 import { icon, fox, groupDrawing } from "./art.js";
 import {
@@ -33,6 +34,8 @@ let session = null,
 let guide = null,
   voiceOptionsSignature = null,
   introduced = false;
+let playerName = "",
+  pendingGame = null;
 try {
   progress = sanitizeProgress(JSON.parse(localStorage.getItem(STORAGE)));
   sound = localStorage.getItem("multiplicaclub-sound") !== "off";
@@ -47,6 +50,9 @@ export const state = {
   get route() {
     return route;
   },
+  get playerName() {
+    return playerName;
+  },
 };
 for (const el of document.querySelectorAll("[data-icon]"))
   el.innerHTML = icon(el.dataset.icon);
@@ -54,6 +60,7 @@ for (const id of ["sidebar-fox", "profile-fox", "setup-fox", "quiz-fox"])
   $(id).innerHTML = fox();
 $("voice-avatar").innerHTML = fox();
 $("luna-portrait").innerHTML = fox("", true);
+$("player-portrait").innerHTML = fox("", true);
 let voicePreferences;
 try {
   voicePreferences = JSON.parse(
@@ -79,8 +86,12 @@ guide = new VoiceGuide({
 document.addEventListener("pointerdown", () => guide.activate(), true);
 document.addEventListener("click", () => guide.activate(), true);
 document.addEventListener("keydown", () => guide.activate(), true);
-const welcomeSpeech =
-  "¡Hola! Soy Luna, tu amiga de los números. Estoy aquí para ayudarte. Vamos a aprender jugando, a tu ritmo. ¡Tú puedes!";
+function withPlayer(text) {
+  return playerName ? `${playerName}, ${text}` : text;
+}
+function welcomeSpeech() {
+  return `¡Hola${playerName ? `, ${playerName}` : ""}! Soy Luna, tu amiga de los números. Estoy aquí para ayudarte. Vamos a aprender jugando, a tu ritmo. ¡Tú puedes!`;
+}
 function voiceUI() {
   if (!guide) return;
   const available = spanishVoices(guide.voices).sort(
@@ -151,10 +162,13 @@ function saveVoice() {
 }
 function readQuestion(force = false) {
   if (!session?.current) return;
-  const prompt = questionSpeech(session.current);
+  const prompt = questionSpeech(
+    session.current,
+    introduced || force ? playerName : "",
+  );
   const greeting =
     !introduced && !force
-      ? "¡Hola! Soy Luna, tu amiga de los números. ¡Aprendamos juntos! "
+      ? `¡Hola, ${playerName}! Soy Luna, tu amiga de los números. ¡Aprendamos juntos! `
       : "";
   if (guide.speak(greeting + prompt, { force })) introduced = true;
 }
@@ -266,6 +280,11 @@ function showPage(page, focus = true) {
   const [eyebrow, title, description] = pageLabels[page];
   $("page-eyebrow").textContent = eyebrow;
   $("page-title").innerHTML = title;
+  if (playerName && ["play", "results"].includes(page))
+    $("page-title").textContent =
+      page === "play"
+        ? `¡Tú puedes, ${playerName}!`
+        : `¡Gran trabajo, ${playerName}!`;
   $("page-description").textContent = description;
   const navPage = ["play", "results"].includes(page) ? "setup" : page;
   for (const nav of document.querySelectorAll("[data-page]")) {
@@ -283,11 +302,15 @@ function showPage(page, focus = true) {
   if (focus) $("page-title").focus({ preventScroll: true });
   if (focus && page === "home")
     guide.speak(
-      "¡Seguimos explorando! Elige una tabla o empezamos una nueva aventura. Estoy aquí para ayudarte.",
+      withPlayer(
+        "¡Seguimos explorando! Elige una tabla o empezamos una nueva aventura. Estoy aquí para ayudarte.",
+      ),
     );
   if (focus && page === "setup")
     guide.speak(
-      "Elige la tabla que quieras practicar. No hay prisa. Puedes usar todas las pistas que necesites.",
+      withPlayer(
+        "Elige la tabla que quieras practicar. No hay prisa. Puedes usar todas las pistas que necesites.",
+      ),
     );
 }
 function refreshProgress() {
@@ -320,10 +343,24 @@ function renderStudy() {
     `Imagina ${selectedTable} ${selectedTable === 1 ? "grupo" : "grupos"} con ${multiplier} ${multiplier === 1 ? "estrella" : "estrellas"} en cada uno.`;
   $("study-drawing").innerHTML = groupDrawing(selectedTable, multiplier, true);
   guide.speak(
-    `${selectedTable} por ${multiplier} es ${selectedTable * multiplier}. ${hintSpeech({ a: selectedTable, b: multiplier })}`,
+    withPlayer(
+      `${selectedTable} por ${multiplier} es ${selectedTable * multiplier}. ${hintSpeech({ a: selectedTable, b: multiplier })}`,
+    ),
   );
 }
 function startSession(table, mode = "practice") {
+  pendingGame = { table, mode };
+  guide.stop();
+  $("player-name").value = "";
+  $("player-name").removeAttribute("aria-invalid");
+  $("player-name-error").textContent = "";
+  $("player-dialog").showModal();
+  $("player-name").focus();
+  guide.speak(
+    "¡Hola! Soy Luna, tu amiga de los números. ¿Quién va a jugar? Escribe tu nombre o apodo para que pueda acompañarte en esta aventura.",
+  );
+}
+function beginSession(table, mode) {
   selectedTable = table === "mixed" ? selectedTable : table;
   session = new LearningSession({ table, mode, learned: progress.learned });
   sessionNew = 0;
@@ -366,6 +403,7 @@ function renderQuestion() {
     "Puedes contar los dibujos si lo necesitas.",
     "¡Qué bien lo estás haciendo! Sigue explorando.",
   ][session.index % 4];
+  $("friend-message").textContent = withPlayer($("friend-message").textContent);
   $("answer-feedback").replaceChildren();
   $("answer-feedback").className = "answer-feedback";
   $("hint-panel").hidden = true;
@@ -392,7 +430,9 @@ function showHint(narrate = true) {
   $("hint-button").disabled = true;
   $("hint-button").innerHTML = `${icon("check")}Aquí están tus dibujos`;
   if (narrate)
-    guide.speak(`Vamos a descubrirlo juntos. ${hintSpeech(session.current)}`);
+    guide.speak(
+      withPlayer(`Vamos a descubrirlo juntos. ${hintSpeech(session.current)}`),
+    );
 }
 function answer(value) {
   if (route !== "play" || !session) return;
@@ -407,11 +447,14 @@ function answer(value) {
     $("answer-feedback").className = "answer-feedback try-again";
     $("answer-feedback").innerHTML =
       `${icon("bulb")}<span>¡Buen intento! Mira los dibujos y prueba otra respuesta.</span>`;
-    $("friend-message").textContent =
-      "Equivocarse también es aprender. ¡Vamos juntos!";
+    $("friend-message").textContent = withPlayer(
+      "Equivocarse también es aprender. ¡Vamos juntos!",
+    );
     showHint(false);
     guide.speak(
-      `¡Buen intento! Equivocarse también es aprender. Probemos otra vez. ${hintSpeech(session.current)}`,
+      withPlayer(
+        `¡Buen intento! Equivocarse también es aprender. Probemos otra vez. ${hintSpeech(session.current)}`,
+      ),
     );
     chime("wrong");
     return;
@@ -437,7 +480,8 @@ function answer(value) {
   $("answer-feedback").className = "answer-feedback correct";
   $("answer-feedback").innerHTML =
     `${icon("check")}<span>¡Lo descubriste! ${a} × ${b} = ${correct}. ¡Una estrella más!</span>`;
-  $("friend-message").textContent = "¡Bravo! Cada pasito te hace crecer.";
+  $("friend-message").textContent =
+    `¡Bravo, ${playerName}! Cada pasito te hace crecer.`;
   $("quiz-fox").innerHTML = fox("", true);
   if (!$("hint-panel").hidden) showHint(false);
   $("hint-button").hidden = true;
@@ -448,7 +492,7 @@ function answer(value) {
   confetti();
   $("next-question").focus({ preventScroll: true });
   guide.speak(
-    `¡Muy bien! ${a} por ${b} es ${correct}. Lo descubriste. ¡Una estrella para celebrar tu esfuerzo!`,
+    `¡Muy bien, ${playerName}! ${a} por ${b} es ${correct}. Lo descubriste. ¡Una estrella para celebrar tu esfuerzo!`,
   );
 }
 function nextQuestion() {
@@ -458,7 +502,7 @@ function nextQuestion() {
     save();
     refreshProgress();
     $("result-copy").textContent =
-      `Has resuelto ${session.total} multiplicaciones ${session.table === "mixed" ? "de las tablas del 1 al 12" : `de la tabla del ${session.table}`}. ¡Qué gran trabajo!`;
+      `Has resuelto ${session.total} multiplicaciones ${session.table === "mixed" ? "de las tablas del 1 al 12" : `de la tabla del ${session.table}`}. ¡Qué gran trabajo, ${playerName}!`;
     $("result-solved").textContent = session.solved;
     $("result-new").textContent = sessionNew;
     $("new-badges").innerHTML = badgesFor(progress)
@@ -472,7 +516,7 @@ function nextQuestion() {
     chime("finish");
     confetti(true);
     guide.speak(
-      `¡Lo hiciste! Has resuelto ${session.total} multiplicaciones. Cada intento te ayuda a crecer. ¡Estoy muy contenta por ti! ¿Exploramos otra tabla?`,
+      `¡Lo hiciste, ${playerName}! Has resuelto ${session.total} multiplicaciones. Cada intento te ayuda a crecer. ¡Estoy muy contenta por ti! ¿Exploramos otra tabla?`,
     );
   } else {
     renderQuestion();
@@ -564,6 +608,35 @@ $("help-button").addEventListener("click", () => {
 });
 for (const button of document.querySelectorAll("[data-close]"))
   button.addEventListener("click", () => $(button.dataset.close).close());
+$("player-form").addEventListener("submit", (event) => {
+  event.preventDefault();
+  if (!pendingGame) return;
+  const result = validatePlayerName($("player-name").value);
+  if (result.error) {
+    $("player-name-error").textContent = result.error;
+    $("player-name").setAttribute("aria-invalid", "true");
+    $("player-name").focus();
+    return;
+  }
+  const { table, mode } = pendingGame;
+  pendingGame = null;
+  playerName = result.name;
+  introduced = false;
+  $("player-dialog").close();
+  beginSession(table, mode);
+});
+$("player-name").addEventListener("input", () => {
+  $("player-name").removeAttribute("aria-invalid");
+  $("player-name-error").textContent = "";
+});
+$("player-dialog").addEventListener("close", () => {
+  if ($("player-dialog").open) return;
+  $("player-name").value = "";
+  if (pendingGame) {
+    pendingGame = null;
+    guide.stop();
+  }
+});
 $("reset-progress").addEventListener("click", () =>
   $("reset-dialog").showModal(),
 );
@@ -591,19 +664,19 @@ $("voice-button").addEventListener("click", () => {
 $("voice-enabled").addEventListener("change", () => {
   guide.configure({ enabled: $("voice-enabled").checked });
   saveVoice();
-  if (guide.preferences.enabled) guide.speak(welcomeSpeech);
+  if (guide.preferences.enabled) guide.speak(welcomeSpeech());
 });
 $("voice-select").addEventListener("change", () => {
   guide.configure({ voiceURI: $("voice-select").value });
   saveVoice();
-  guide.speak(welcomeSpeech, { force: true });
+  guide.speak(welcomeSpeech(), { force: true });
 });
 $("voice-rate").addEventListener("input", () => {
   guide.configure({ rate: Number($("voice-rate").value) });
   saveVoice();
 });
 $("voice-test").addEventListener("click", () =>
-  guide.speak(welcomeSpeech, { force: true }),
+  guide.speak(welcomeSpeech(), { force: true }),
 );
 $("voice-stop").addEventListener("click", () => guide.stop());
 $("voice-dialog").addEventListener("close", () => guide.stop());

@@ -177,6 +177,26 @@ export function badgesFor(progress) {
     },
   ];
 }
+export function validatePlayerName(value) {
+  const name =
+    typeof value === "string"
+      ? value.normalize("NFC").trim().replace(/\s+/gu, " ")
+      : "";
+  if (!name)
+    return {
+      name: "",
+      error: "Escribe tu nombre o apodo para que Luna pueda saludarte.",
+    };
+  if ([...name].length > 24)
+    return { name: "", error: "Usa un nombre o apodo de hasta 24 letras." };
+  if (!/^[\p{L}\p{M}\p{N} '\u2019-]+$/u.test(name) || !/\p{L}/u.test(name))
+    return {
+      name: "",
+      error:
+        "Usa letras en tu nombre o apodo. También puedes incluir números, espacios o guiones.",
+    };
+  return { name, error: "" };
+}
 export class LearningSession {
   constructor({
     table = "mixed",

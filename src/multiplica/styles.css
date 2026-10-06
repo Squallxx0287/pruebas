@@ -3060,3 +3060,93 @@ select {
     animation: none !important;
   }
 }
+
+.player-dialog {
+  text-align: center;
+  max-width: 460px;
+}
+.player-dialog > .eyebrow {
+  font-size: 8px;
+  color: #a28ab2;
+}
+.player-dialog > h2 {
+  font-size: 31px;
+  margin-bottom: 12px;
+}
+.player-dialog > p {
+  font-size: 12px;
+  color: #967da6;
+}
+.player-dialog .luna-portrait {
+  margin-bottom: 23px;
+}
+.player-dialog .field-label {
+  text-align: left;
+  font-size: 12px;
+  margin: 24px 0 11px;
+}
+.player-name-input {
+  display: block;
+  width: 100%;
+  min-height: 52px;
+  border: 1.5px solid #dcc8eb;
+  background: #fcf8ff;
+  border-radius: 13px;
+  padding: 12px 15px;
+  color: #79548f;
+  font-weight: 700;
+  font-size: 17px;
+  text-align: left;
+}
+.player-name-input::placeholder {
+  font-weight: 600;
+  color: #b6a1c6;
+  font-size: 13px;
+}
+.player-name-input[aria-invalid="true"] {
+  border-color: #d0a27f;
+  background: #fff9f2;
+}
+.player-name-note {
+  font-size: 10px;
+  color: #9b84aa;
+  text-align: left;
+  line-height: 1.7;
+  margin-top: 10px;
+}
+.player-name-error {
+  font-size: 11px;
+  color: #986c49;
+  line-height: 1.6;
+  min-height: 20px;
+  margin: 10px 0 8px;
+  text-align: left;
+}
+.player-dialog form > .primary-button {
+  width: 100%;
+  font-size: 13px;
+}
+.player-dialog form > .text-button {
+  margin-top: 12px;
+  font-size: 12px;
+}
+.page-header > div:first-child {
+  min-width: 0;
+}
+#page-title,
+.quiz-friend p,
+#result-copy,
+#voice-caption {
+  overflow-wrap: anywhere;
+}
+@media (max-width: 700px) {
+  .player-dialog {
+    padding: 29px 23px;
+  }
+  .player-dialog > h2 {
+    font-size: 29px;
+  }
+  .player-name-input {
+    font-size: 17px;
+  }
+}

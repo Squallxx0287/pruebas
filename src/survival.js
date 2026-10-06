@@ -367,6 +367,8 @@ export class DeadzoneGame {
     this.id = 0;
     this.player = {
       x: 0,
+      y: 0,
+      vy: 0,
       z: 14,
       yaw: 0,
       pitch: 0,
@@ -425,6 +427,8 @@ export class DeadzoneGame {
     this.obstacles = layout(this.level);
     Object.assign(this.player, {
       x: 0,
+      y: 0,
+      vy: 0,
       z: 14,
       yaw: 0,
       pitch: 0,
@@ -448,7 +452,7 @@ export class DeadzoneGame {
   get eye() {
     return {
       x: this.player.x,
-      y: this.player.crouch ? 1.15 : 1.7,
+      y: this.player.y + (this.player.crouch ? 1.15 : 1.7),
       z: this.player.z,
     };
   }
@@ -749,7 +753,7 @@ export class DeadzoneGame {
       id: ++this.id,
       kind: "grenade",
       x: p.x,
-      y: 1.5,
+      y: this.eye.y - 0.2,
       z: p.z,
       dx: -Math.sin(p.yaw) * 13,
       dy: 5 + Math.sin(p.pitch) * 6,
@@ -889,6 +893,12 @@ export class DeadzoneGame {
     if (Number.isFinite(input.pitch)) p.pitch = clamp(input.pitch, -1.35, 1.35);
     p.aim = !!input.aim;
     p.crouch = !!input.crouch;
+    if (input.jump && p.y === 0 && p.vy === 0) p.vy = 6.4;
+    if (p.y > 0 || p.vy > 0) {
+      p.y += p.vy * dt - 9 * dt * dt;
+      p.vy -= 18 * dt;
+      if (p.y <= 0) p.y = p.vy = 0;
+    }
     if (p.reload > 0) {
       p.reload -= dt;
       if (p.reload <= 0) {

@@ -12,6 +12,8 @@ let keys = new Set(),
   aiming = false,
   reloadQueued = false,
   grenadeQueued = false,
+  jumpQueued = false,
+  wasPointerLocked = false,
   selected = 3,
   arsenalReturn = "menu",
   helpReturn = null;
@@ -209,6 +211,7 @@ function clearInput() {
   aiming = false;
   reloadQueued = false;
   grenadeQueued = false;
+  jumpQueued = false;
   joystick.x = joystick.z = 0;
   joystick.id = null;
   lookTouch.id = null;
@@ -593,6 +596,7 @@ addEventListener("keydown", (e) => {
   keys.add(e.code);
   if (e.code === "KeyR") reloadQueued = true;
   if (e.code === "KeyG") grenadeQueued = true;
+  if (e.code === "Space" && game.state === "playing") jumpQueued = true;
   if (e.code === "KeyF" && visual) {
     visual.flashlight = !visual.flashlight;
     toast(visual.flashlight ? "LINTERNA ENCENDIDA" : "LINTERNA APAGADA");
@@ -601,22 +605,19 @@ addEventListener("keydown", (e) => {
 addEventListener("keyup", (e) => keys.delete(e.code));
 addEventListener("mousemove", (e) => {
   if (game.state !== "playing" || mobile) return;
-  if (document.pointerLockElement === $("world") || firing) {
-    const sensitivity = game.player.aim ? 0.0012 : 0.0022;
-    game.player.yaw -= e.movementX * sensitivity;
-    game.player.pitch = clamp(
-      game.player.pitch - e.movementY * sensitivity,
-      -1.35,
-      1.35,
-    );
-  }
+  const sensitivity = game.player.aim ? 0.0012 : 0.0022;
+  game.player.yaw -= e.movementX * sensitivity;
+  game.player.pitch = clamp(
+    game.player.pitch - e.movementY * sensitivity,
+    -1.35,
+    1.35,
+  );
 });
 $("world").addEventListener("mousedown", (e) => {
   if (game.state !== "playing" || mobile) return;
   if (e.button === 0) {
     firing = true;
     trigger = true;
-    if (!document.pointerLockElement) capture();
   }
   if (e.button === 2) aiming = true;
   audio.init();
@@ -638,7 +639,8 @@ addEventListener(
 document.addEventListener("pointerlockchange", () => {
   const locked = document.pointerLockElement === $("world");
   $("lock-hint").hidden = locked || mobile;
-  if (!locked && game.state === "playing") pause();
+  if (wasPointerLocked && !locked && game.state === "playing") pause();
+  wasPointerLocked = locked;
 });
 addEventListener("blur", () => {
   clearInput();
@@ -760,6 +762,7 @@ function frame(now) {
       aim: aiming,
       reload: first && reloadQueued,
       grenade: first && grenadeQueued,
+      jump: first && jumpQueued,
       sprint: keys.has("ShiftLeft") || keys.has("ShiftRight"),
       crouch: keys.has("KeyC"),
     });
@@ -769,6 +772,7 @@ function frame(now) {
   trigger = false;
   reloadQueued = false;
   grenadeQueued = false;
+  jumpQueued = false;
   processEvents();
   if (endDelay) {
     endDelay.remaining -= dt;
@@ -789,6 +793,7 @@ function frame(now) {
   if (
     game.state === "playing" &&
     Math.hypot(mx, mz) > 0.2 &&
+    game.player.y === 0 &&
     footstepTime <= 0
   ) {
     audio.noise(0.07, 0.018, 800);

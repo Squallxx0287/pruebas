@@ -2027,10 +2027,11 @@ export class DeadzoneRenderer {
       this.sync(game, dt);
       const p = game.player;
       this.walkTime += dt * movement * 9;
-      const bob = movement
-        ? Math.sin(this.walkTime) * 0.035
-        : Math.sin(this.time * 1.4) * 0.006;
-      this.camera.position.set(p.x, (p.crouch ? 1.15 : 1.7) + bob, p.z);
+      const bob =
+        movement && p.y === 0
+          ? Math.sin(this.walkTime) * 0.035
+          : Math.sin(this.time * 1.4) * 0.006;
+      this.camera.position.set(p.x, game.eye.y + bob, p.z);
       this.camera.rotation.set(p.pitch + this.recoil * 0.12, p.yaw, 0, "YXZ");
       const fov = p.aim ? (this.weaponIndex === 6 ? 29 : 52) : 72;
       this.camera.fov += (fov - this.camera.fov) * Math.min(1, dt * 12);

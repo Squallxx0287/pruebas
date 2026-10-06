@@ -18,18 +18,19 @@ npm test
 npm run check
 ```
 
-Las 19 pruebas verifican colisiones, impactos en cabeza/cuerpo, cobertura, movimiento, recargas, diez armas, granadas, explosiones, fuego persistente, navegación, suministros, pausa, ataques de jefes y progresión hasta la victoria. También incluyen un combate simulado que completa la primera horda y su jefe usando entradas de movimiento, apuntado, disparo y recarga.
+Las 20 pruebas verifican colisiones, impactos en cabeza/cuerpo, cobertura, movimiento, saltos, recargas, diez armas, granadas, explosiones, fuego persistente, navegación, suministros, pausa, ataques de jefes y progresión hasta la victoria. También incluyen un combate simulado que completa la primera horda y su jefe usando entradas de movimiento, apuntado, disparo y recarga.
 
 ## Controles
 
 | Acción       | Control                                            |
 | ------------ | -------------------------------------------------- |
 | Movimiento   | WASD / flechas                                     |
-| Mirar        | Ratón; clic en la arena para capturar el cursor    |
+| Mirar        | Mover el ratón, sin mantener clic                  |
 | Disparar     | Clic izquierdo; mantener para armas automáticas    |
 | Apuntar      | Mantener clic derecho; mira telescópica con el AWP |
 | Recargar     | R                                                  |
 | Correr       | Shift, consume resistencia                         |
+| Saltar       | Barra espaciadora                                  |
 | Agacharse    | Mantener C                                         |
 | Granada      | G, tres por nivel                                  |
 | Linterna     | F                                                  |

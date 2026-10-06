@@ -1384,7 +1384,7 @@ dialog .primary {
   grid-row: 3;
 }
 .playing #world {
-  cursor: crosshair;
+  cursor: none;
 }
 .low-health .health-main b {
   color: #e08267;

@@ -73,6 +73,37 @@ test("movement respects diagonal speed, collision, crouch and stamina", () => {
   step(c, 1);
   assert.ok(c.player.stamina > 78);
 });
+test("jump raises the camera and projectile origin, rejects air jumps, freezes in pause and resets on landing or a new level", () => {
+  const g = run();
+  g.update(1 / 60, { jump: true });
+  assert.ok(g.player.y > 0 && g.player.vy > 0);
+  const velocity = g.player.vy;
+  g.update(1 / 60, { jump: true });
+  assert.ok(g.player.vy < velocity);
+  step(g, 0.25, { moveZ: 1 });
+  assert.ok(g.player.y > 1 && g.player.y < 1.2);
+  assert.ok(Math.abs(g.eye.y - (g.player.y + 1.7)) < 1e-9);
+  assert.ok(g.player.z < 14);
+  g.grenade();
+  assert.ok(Math.abs(g.projectiles.at(-1).y - (g.eye.y - 0.2)) < 1e-9);
+  g.switchWeapon(9);
+  g.player.cooldown = 0;
+  assert.equal(g.shoot(), true);
+  assert.equal(g.projectiles.at(-1).y, g.eye.y);
+  g.state = "paused";
+  const airborne = [g.player.y, g.player.vy];
+  step(g, 1, { jump: true });
+  assert.deepEqual([g.player.y, g.player.vy], airborne);
+  g.state = "playing";
+  step(g, 1);
+  assert.equal(g.player.y, 0);
+  assert.equal(g.player.vy, 0);
+  g.update(1 / 60, { jump: true });
+  assert.ok(g.player.y > 0);
+  g.nextLevel();
+  assert.equal(g.player.y, 0);
+  assert.equal(g.player.vy, 0);
+});
 test("semiautomatic fire requires a new trigger and automatic fire repeats", () => {
   const g = run();
   g.switchWeapon(0);
